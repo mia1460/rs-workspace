@@ -1,0 +1,314 @@
+LD_PRELOAD=/home/xieminhui/miniconda3/envs/nv_recsys/lib/libtbb.so PYTHONPATH=${PYTHONPATH}:$(realpath ../):/home/xieminhui/yinj/workplace/recsys-examples/corelib torchrun --nproc_per_node 1 --master_addr localhost --master_port 6000  pretrain_gr_retrieval.py --gin-config-file movielen_retrieval.gin
+LD_PRELOAD=/home/xieminhui/miniconda3/envs/nv_recsys/lib/libtbb.so PYTHONPATH=${PYTHONPATH}:$(realpath ../):/home/xieminhui/yinj/workplace/recsys-examples/corelib torchrun --nproc_per_node 1 --master_addr localhost --master_port 6000  pretrain_gr_ranking.py --gin-config-file movielen_ranking.gin
+
+# grep 
+grep -r --exclude-dir=tmp_data 'torch.device("cuda", torch.cuda.current_device())' .
+
+# change file permissions
+sudo chown -R xieminhui:xieminhui /home/xieminhui/yinj/workplace/recsys-examples
+
+# docker
+export http_proxy=http://127.0.0.1:33210
+export https_proxy=http://127.0.0.1:33210
+
+ssh -NR 33210:127.0.0.1:33210 xieminhui@10.0.2.182
+
+cd third_party
+git clone --recursive -b v1.2.0 git@github.com:pytorch/FBGEMM.git fbgemm
+git clone --recursive -b v1.2.0 git@github.com:pytorch/torchrec.git torchrec
+git clone -b core_v0.12.1 git@github.com:NVIDIA/Megatron-LM.git megatron-lm
+
+docker run --rm -it recsys:debug bash
+
+Cloning into '/workspace/recsys-examples/third_party/HierarchicalKV'...
+Submodule path '../../third_party/HierarchicalKV': checked out '012237dd64647cc94797e8270cacf11fe7032fd7'
+
+docker build --target=devel --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:devel .
+docker build --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:v25.06 .
+docker build --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:d711 . # date is 2025-07-11
+docker build --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:d715 .
+docker build --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:d716 .
+docker build --target=devel --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:devel .
+
+docker build --target=devel --network=host -f docker/Dockerfile --platform linux/amd64 -t rs-yinj:train_devel .
+
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples/examples/hstu/tmp_data:/workspace/recsys-examples/examples/hstu/tmp_data \
+  -v /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
+  -it --name rs-yinj rs-yinj:v25.06 /bin/bash
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-train rs-yinj:train_devel \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/prs/recsys-examples:/workspace/recsys-examples \
+  -it -d --name pr-train rs-yinj:train_devel \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/train-side/recsys-examples:/workspace/recsys-examples \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/shared_data:/workspace/recsys-shared_data \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/train-side/train-side_data:/workspace/recsys-separate_data \
+  -w /workspace/recsys-examples \
+  -it -d --name nrs-train rs-yinj:train_devel \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/infer-side/recsys-examples:/workspace/recsys-examples \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/shared_data:/workspace/recsys-shared_data \
+  -v /home/xieminhui/yinj/workplace/rs-workspace/infer-side/infer-side_data:/workspace/recsys-separate_data \
+  -w /workspace/recsys-examples \
+  -it -d --name nrs-infer rs-infer:d730 \
+  tail -f /dev/null
+
+
+
+PYTHONPATH=${PYTHONPATH}:$(realpath ../) torchrun --nproc_per_node 1 --master_addr localhost --master_port 6543  pretrain_gr_retrieval.py --gin-config-file movielen_retrieval.gin
+
+CUDA_VISIBLE_DEVICES=2,3 PYTHONPATH=${PYTHONPATH}:$(realpath ../) torchrun --nproc_per_node 1 --master_addr localhost --master_port 6543  pretrain_gr_retrieval.py --gin-config-file movielen_retrieval.gin
+CUDA_VISIBLE_DEVICES=0,1 PYTHONPATH=${PYTHONPATH}:$(realpath ../) torchrun --nproc_per_node 1 --master_addr localhost --master_port 6543  pretrain_gr_retrieval.py --gin-config-file movielen_retrieval.gin
+CUDA_VISIBLE_DEVICES=0,1 PYTHONPATH=${PYTHONPATH}:$(realpath ../) torchrun --nproc_per_node 1 --master_addr localhost --master_port 6000  pretrain_gr_ranking.py --gin-config-file kuairand_1k_ranking.gin
+
+# build a new container and run in the background
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -v /home/xieminhui/.ssh:/root/.ssh:ro \
+  -v /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
+  -it -d --name rs-yinj rs-yinj:v25.06 \
+  tail -f /dev/null
+
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -v /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
+  -it -d --name rs-yinj rs-yinj:d711 \
+  tail -f /dev/null  
+
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-yinj rs-yinj:devel \
+  tail -f /dev/null
+
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-mac rs-yinj:devel \
+  tail -f /dev/null
+docker exec -it rs-yinj bash
+
+#inference_build
+cd recsys-examples/inference_build
+git clone -b hstu-kvcache-recsys-examples https://github.com/geoffreyQiu/TensorRT-LLM.git tensorrt-llm-kvcache && cd tensorrt-llm-kvcache
+git submodule update --init --recursive
+make -C docker release_build CUDA_ARCHS="80-real;86-real"
+
+[Service]
+Environment="HTTP_PROXY=127.0.0.1:33210"
+Environment="HTTPS_PROXY=127.0.0.1:33210"
+Environment="NO_PROXY=localhost,127.0.0.1"
+
+export TRTLLM_KVCACHE_IMAGE="tensorrt_llm/release:latest" 
+docker build \
+    --target=devel --network=host \
+    --build-arg BASE_IMAGE=${TRTLLM_KVCACHE_IMAGE} \
+    --build-arg INFERENCEBUILD=1 \
+    -t rs-yinj:inference \
+    -f docker/Dockerfile .
+
+docker run \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-infer rs-inference:d718 \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-train rs-train:d718 \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-infer rs-infer:d730 \
+  tail -f /dev/null
+docker exec -it rs-yinj bash
+
+
+# uninstall
+python setup.py clean
+rm -rf build/ dist/ *.egg-info
+
+# corelib/dynamicemb
+cd /workspace/recsys-examples/corelib/dynamicemb
+TORCH_USE_CUDA_DSA=1 pip install -e .
+
+# corelib/hstu
+cd /workspace/recsys-examples/corelib/hstu
+HSTU_DISABLE_LOCAL=TRUE HSTU_DISABLE_RAB=TRUE HSTU_DISABLE_DRAB=TRUE pip install -e .
+HSTU_DISABLE_LOCAL=TRUE HSTU_DISABLE_RAB=TRUE HSTU_DISABLE_DRAB=TRUE pip install -e -v . > /workspace/recsys-examples/data/running_log/hstu_attn_varlen_func/recompile_less_debug_info.log
+
+# examples/hstu
+cd /workspace/recsys-examples/examples/hstu
+pip install -e .
+
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=1 \
+cuda-gdb --args python3 benchmark/real_inference_benchmark.py \
+  --gin-config-file /workspace/recsys-examples/examples/hstu/kuairand_1k_ranking_debug.gin \
+  --time_interval_ms 3600000
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name debug-tensorrt debug-tensorrt \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name debug-tensorrt rs-infer:d730 \
+  tail -f /dev/null
+
+docker run \
+  --network=host \
+  --gpus all \
+  -v /home/xieminhui/yinj/workplace/recsys-examples:/workspace/recsys-examples \
+  -it -d --name rs-infer rs-infer:d730 \
+  tail -f /dev/null
+docker exec -it rs-yinj bash
+
+
+# tensorrt_llm_build
+# pip install -r requirements-dev.txt
+# git reset --hard origin/hstu-kvcache-recsys-examples
+
+# ✅ success  ↓ ↓ ↓ !!!
+# 0. modify the tensorrt-llm-kvcache/requirements-dev.txt: setuptools==69.5.1, flashinfer-python==0.2.5
+python3 ./scripts/build_wheel.py \
+  --build_dir /home/debug/.local/tensorrt_debug/build \
+  --dist_dir /home/debug/.local/tensorrt_debug/dist \
+  --cuda_architectures 80 \
+  --configure_cmake
+
+pip install /home/debug/.local/tensorrt_debug/dist/tensorrt_llm*.whl --target /home/debug/.local/tensorrt_llm_test --force-reinstall --no-deps
+export PYTHONPATH=/home/debug/.local/tensorrt_llm_test:$PYTHONPATH
+# `INFO - flashinfer.jit: Prebuilt kernels not found, using JIT backend`
+
+# ❗failed situations:
+# pip install /home/debug/.local/tensorrt_debug/dist/tensorrt_llm*.whl --prefix /home/debug/.local/
+# ↑ cause: `tensorrt-llm is already installed with the same version as the provided wheel. Use --force-reinstall to force an installation of the wheel.`
+
+# pip install /home/debug/.local/tensorrt_debug/dist/tensorrt_llm*.whl --prefix /home/debug/.local/ --force-reinstall
+# ↑ cause: uninstalled the old tensorrt-llm package and its dependencies.
+
+# pip install /home/debug/.local/tensorrt_debug/dist/tensorrt_llm*.whl --target /home/debug/.local/
+# ↑ keep the old tensorrt_llm successfully ! 
+# export PYTHONPATH=/home/debug/.local/:$PYTHONPATH
+# ↑ cause: `ImportError: /home/debug/.local/tensorrt_llm/bindings.cpython-312-x86_64-linux-gnu.so: 
+# undefined symbol: _ZN3c105ErrorC2ENS_14SourceLocationENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE`
+
+# build tensorrt-llm with different_prefix
+VERSION=init_check
+DEBUG_TRTLLM_BASE=/home/debug/.local/tensorrt_debug/$VERSION
+mkdir -p $DEBUG_TRTLLM_BASE/build $DEBUG_TRTLLM_BASE/dist $DEBUG_TRTLLM_BASE/install
+python3 ./scripts/build_wheel.py \
+  --build_dir $DEBUG_TRTLLM_BASE/build \
+  --dist_dir $DEBUG_TRTLLM_BASE/dist \
+  --cuda_architectures 80 \
+  --configure_cmake
+
+pip install $DEBUG_TRTLLM_BASE/dist/tensorrt_llm*.whl \
+  --target $DEBUG_TRTLLM_BASE/install \
+  --force-reinstall --no-deps
+export PYTHONPATH=$DEBUG_TRTLLM_BASE/install:$PYTHONPATH
+
+export LD_LIBRARY_PATH=$(python -c "import torch; print(torch.__path__[0])")/lib:$LD_LIBRARY_PATH
+
+
+export PYTHONPATH=/home/debug/.local/local/lib/python3.12/dist-packages/:${PYTHONPATH}
+pip install ./dist/tensorrt_llm*.whl --prefix /home/debug/.local/ 
+
+python -c "import tensorrt_llm; print(tensorrt_llm.__file__)"
+
+# rebuild deps about recsys-examples
+cd /workspace/deps/fbgemm/fbgemm_gpu
+pip install torchx gin-config torchmetrics==1.0.3 typing-extensions iopath pyvers
+pip install --no-cache-dir setuptools==69.5.1 setuptools-git-versioning scikit-build
+
+export CMAKE_PREFIX_PATH=/home/debug/.local/local/lib/python3.12/dist-packages/torch
+export LD_LIBRARY_PATH=/home/debug/.local/local/lib/python3.12/dist-packages/torch/lib:$LD_LIBRARY_PATH
+python3 -c "import sys; from pprint import pprint; pprint(sys.path)"
+
+find /home/debug/.local/local/lib/python3.12/dist-packages/torch -name TorchConfig.cmake
+export Torch_DIR=/home/debug/.local/local/lib/python3.12/dist-packages/torch/share/cmake/Torch
+export CUDA_HOME=/usr/local/cuda
+python setup.py clean
+CUDA_HOME=/usr/local/cuda python setup.py install --package_variant=cuda -DTORCH_CUDA_ARCH_LIST="8.0" > /workspace/recsys-examples/data/building_logs/fbgemm_gpu/install.log 2>&1
+
+pip uninstall dask-cudf
+
+python setup.py install --package_variant=cuda -DTORCH_CUDA_ARCH_LIST="8.0"
+
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+torchx 0.7.0 requires urllib3<1.27,>=1.21.1, but you have urllib3 2.5.0 which is incompatible.
+pylibcudf 25.2.0 requires pyarrow<20.0.0a0,>=14.0.0; platform_machine == "x86_64", but you have pyarrow 21.0.0 which is incompatible.
+cudf 25.2.0 requires pandas<2.2.4dev0,>=2.0, but you have pandas 2.3.1 which is incompatible.
+cudf 25.2.0 requires pyarrow<20.0.0a0,>=14.0.0; platform_machine == "x86_64", but you have pyarrow 21.0.0 which is incompatible.
+dask-cudf 25.2.0 requires pandas<2.2.4dev0,>=2.0, but you have pandas 2.3.1 which is incompatible.
+nvidia-dali-cuda120 1.47.0 requires packaging<=24.2, but you have packaging 25.0 which is incompatible.
+nvidia-dali-cuda120 1.47.0 requires six<=1.16,>=1.16, but you have six 1.17.0 which is incompatible.
+
+/workspace/recsys-examples/inference_deps/tensorrt-llm-kvcache# pip install /home/debug/.local/tensorrt_debug/dist/tensorrt_llm*.whl --prefix /home/debug/.loca/ --force-reinstall
+
+export TRTLLM_BUILD_DIR=/home/debug/.local/tensorrt_debug/build
+export TRTLLM_DIST_DIR=/home/debug/.local/tensorrt_debug/dist
+export TRTLLM_LIB_DIR=/home/debug/.local
+
+python3 ./scripts/build_wheel.py --build_dir "$TRTLLM_BUILD_DIR" --dist_dir "$TRTLLM_DIST_DIR"
+
+pip install "$TRTLLM_DIST_DIR"/tensorrt_llm*.whl --prefix "$TRTLLM_LIB_DIR" --force-reinstall
+
+export PYTHONPATH="$TRTLLM_LIB_DIR/lib/python3.12/site-packages:$PYTHONPATH"
+
+
+Name: tensorrt
+Version: 10.9.0.34
+Summary: A high performance deep learning inference library
+Home-page: https://github.com/nvidia/tensorrt
+Author: NVIDIA Corporation
+Author-email: 
+License: Proprietary
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: 
+Required-by: tensorrt_llm
+
+Name: tensorrt_llm
+Version: 0.19.0
+Summary: TensorRT-LLM: A TensorRT Toolbox for Large Language Models
+Home-page: https://github.com/NVIDIA/TensorRT-LLM
+Author: NVIDIA Corporation
+Author-email: 
+License: Apache License 2.0
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: accelerate, aenum, backoff, build, click, click_option_group, colored, cuda-python, diffusers, einops, evaluate, fastapi, flashinfer-python, h5py, httpx, lark, matplotlib, mpi4py, mpmath, numpy, nvidia-cuda-nvrtc-cu12, nvidia-ml-py, nvidia-modelopt, nvidia-nccl-cu12, nvtx, onnx, onnx_graphsurgeon, openai, opencv-python-headless, optimum, ordered-set, pandas, peft, pillow, polygraphy, psutil, pulp, pydantic, pynvml, pyzmq, sentencepiece, setuptools, StrEnum, tensorrt, torch, torchvision, transformers, uvicorn, wheel, xgrammar
+Required-by:
+
+# ps kill
+ps -eo pid,state,cmd # if state is Z, it is zombie, no need to kill inside docker, it will clean when docker restart

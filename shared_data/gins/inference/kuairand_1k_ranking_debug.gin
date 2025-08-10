@@ -1,0 +1,48 @@
+# currently, trying to find why the shape saved for the video_id and movie_id both are (1, 1), while the model defination is (video_id): Embedding(10000000, 512), (user_id): Embedding(10000000, 512)
+# now look at why the emb_size = 3 * defination
+# now look about the optstate_dim in export_keys_values
+# now use for the inference, check about the main porblem when run real_inference_benchmark.py
+# now for test eval_batch_size = 64, 128, 256
+# now for test with small blocks_in_primary_pool=2048
+# now for test with small blocks_in_primary_pool=256
+TrainerArgs.train_batch_size = 8
+TrainerArgs.eval_batch_size = 64 # 128 is safe when blocks_in_primary_pool=16384
+TrainerArgs.log_interval = 10
+TrainerArgs.eval_interval = 10
+TrainerArgs.log_interval = 10
+TrainerArgs.max_train_iters = 1
+TrainerArgs.ckpt_save_at_end = True
+
+KVCacheArgs.blocks_in_primary_pool = 10240
+KVCacheArgs.page_size = 32
+KVCacheArgs.offload_chunksize = 1024
+# KVCacheArgs.max_batch_size = 64 # use the TrainerArgs
+# KVCacheArgs.max_seq_len = 4096
+# KVCacheArgs.max_attention_window = None
+
+###   Attention !!!!!! `
+DatasetArgs.dataset_name = 'kuairand-1k'
+TrainerArgs.ckpt_save_dir = "/workspace/recsys-examples/data/ckpts/kuairand-1k/ranking"
+TrainerArgs.ckpt_load_dir = '/workspace/recsys-examples/data/ckpts/kuairand-1k/ranking/2025_07_24-03_32_38/final-iter1'
+
+
+DatasetArgs.max_sequence_length = 4096
+DatasetArgs.max_num_candidates = 100
+DatasetArgs.shuffle = False
+
+NetworkArgs.num_layers = 3
+NetworkArgs.num_attention_heads = 4
+NetworkArgs.hidden_size = 512
+NetworkArgs.kv_channels = 128
+NetworkArgs.layer_type = "native"
+
+RankingArgs.prediction_head_arch = [
+    512, 8
+]
+RankingArgs.prediction_head_bias = True
+RankingArgs.num_tasks = 8
+
+OptimizerArgs.optimizer_str = 'adam'
+OptimizerArgs.learning_rate = 1e-3
+
+TensorModelParallelArgs.tensor_model_parallel_size = 1

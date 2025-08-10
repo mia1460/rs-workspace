@@ -1,0 +1,14 @@
+when run `python setup.py bdist_wheel --package_variant=cuda -DTORCH_CUDA_ARCH_LIST="8.0"`
+
+removing '_skbuild/linux-x86_64-3.10/setuptools/bdist.linux-x86_64/wheel/fbgemm_gpu_nightly-2025.6.8-py3.10.egg-info' (and everything under it)
+Copying fbgemm_gpu_nightly.egg-info to _skbuild/linux-x86_64-3.10/setuptools/bdist.linux-x86_64/wheel/fbgemm_gpu_nightly-2025.6.8-py3.10.egg-info
+running install_scripts
+copied 0 files
+error: [Errno 2] No such file or directory: 'None/bin/nvcc'
+
+hstu_hopper_cuda No module
+find . -name "setup.py" -exec grep -H "hstu_hopper_cuda" {} \;
+./corelib/hstu/build/lib.linux-x86_64-cpython-310/hopper/setup.py:            name="hstu_hopper_cuda",
+./corelib/hstu/hopper/setup.py:            name="hstu_hopper_cuda",
+cd ./corelib/hstu/hopper
+python setup.py install

@@ -1,0 +1,612 @@
+[2025-08-07 05:50:44] [DEBUG] __main__ (pretrain_gr_ranking.py:28): successfully init logging
+/usr/local/lib/python3.12/dist-packages/rapids_dask_dependency/dask_loader.py:36: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  return importlib.import_module(spec.name)
+[2025-08-07 05:50:52.401020] distributed env initialization done. Free cuda memory: 23622.44 MB
+RankingGR(
+  (_embedding_collection): ShardedEmbedding(
+    (_model_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (video_id): Embedding(10000000, 128)
+        (user_id): Embedding(10000000, 128)
+      )
+    )
+    (_data_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (user_active_degree): Embedding(10, 128)
+        (follow_user_num_range): Embedding(9, 128)
+        (fans_user_num_range): Embedding(10, 128)
+        (friend_user_num_range): Embedding(8, 128)
+        (register_days_range): Embedding(8, 128)
+        (action_weights): Embedding(226, 128)
+      )
+    )
+  )
+  (_hstu_block): HSTUBlock(
+    (_preprocessor): HSTUBlockPreprocessor(
+      (_positional_encoder): HSTUPositionalEncoder()
+    )
+    (_postprocessor): HSTUBlockPostprocessor()
+    (_attention_layers): ModuleList(
+      (0-1): 2 x FusedHSTULayer()
+    )
+  )
+  (_mlp): MLP(
+    (_mlp): Sequential(
+      (0): Linear(in_features=128, out_features=512, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=512, out_features=8, bias=True)
+      (3): Identity()
+    )
+  )
+  (_loss_module): MultiTaskLossModule(
+    (_loss_modules): BCEWithLogitsLoss()
+  )
+  (_metric_module): MultiClassificationTaskMetric(
+    (_eval_metrics_modules): ModuleList(
+      (0-7): 8 x BinaryAUROC()
+    )
+  )
+)
+
+
+table name |          | memory(MB) |             |         | hbm(MB)/cuda:0 |             |          |  dram(MB) |            
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+           | total    | embedding  | optim_state | total   | embedding      | optim_state | total    | embedding | optim_state
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+video_id   | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+user_id    | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:08] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 05:51:09.741461] model initialization done, start training. Free cuda memory: 14446.44 MB
+[2025-08-07 05:51:09.741897] =========Traning without time window============
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-07 05:51:20.638728] [train] [iter 9, tokens 5893, elapsed_time 10466.37 ms, achieved FLOPS 0.02 TFLOPS]: loss 3.585335
+/usr/local/lib/python3.12/dist-packages/torchmetrics/utilities/prints.py:42: UserWarning: No positive samples in targets, true positive value should be meaningless. Returning zero tensor in true positive score
+  warnings.warn(*args, **kwargs)  # noqa: B028
+[2025-08-07 05:51:26.195671] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.635948
+    Metrics.task1.AUC:0.526509
+    Metrics.task2.AUC:0.479933
+    Metrics.task3.AUC:0.485018
+    Metrics.task4.AUC:0.563293
+    Metrics.task5.AUC:0.555655
+    Metrics.task6.AUC:0.623414
+    Metrics.task7.AUC:0.552110
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-07 05:51:26.433909] [train] [iter 19, tokens 5798, elapsed_time 6225.00 ms, achieved FLOPS 0.03 TFLOPS]: loss 1.869296
+[2025-08-07 05:51:30.027172] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.662208
+    Metrics.task1.AUC:0.507155
+    Metrics.task2.AUC:0.445978
+    Metrics.task3.AUC:0.513738
+    Metrics.task4.AUC:0.542468
+    Metrics.task5.AUC:0.517459
+    Metrics.task6.AUC:0.651780
+    Metrics.task7.AUC:0.561859
+[2025-08-07 05:51:30.266872] [train] [iter 29, tokens 5815, elapsed_time 3832.90 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.654633
+[2025-08-07 05:51:33.864983] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.665738
+    Metrics.task1.AUC:0.448407
+    Metrics.task2.AUC:0.413605
+    Metrics.task3.AUC:0.442747
+    Metrics.task4.AUC:0.469088
+    Metrics.task5.AUC:0.486796
+    Metrics.task6.AUC:0.664698
+    Metrics.task7.AUC:0.516962
+[2025-08-07 05:51:34.126934] [train] [iter 39, tokens 5744, elapsed_time 3859.94 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.556287
+[2025-08-07 05:51:37.726915] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.660587
+    Metrics.task1.AUC:0.488975
+    Metrics.task2.AUC:0.501986
+    Metrics.task3.AUC:0.490374
+    Metrics.task4.AUC:0.536892
+    Metrics.task5.AUC:0.480197
+    Metrics.task6.AUC:0.663357
+    Metrics.task7.AUC:0.528759
+[2025-08-07 05:51:37.986674] [train] [iter 49, tokens 5724, elapsed_time 3859.88 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.449073
+[2025-08-07 05:51:41.569824] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.670573
+    Metrics.task1.AUC:0.552757
+    Metrics.task2.AUC:0.541095
+    Metrics.task3.AUC:0.570081
+    Metrics.task4.AUC:0.555685
+    Metrics.task5.AUC:0.522711
+    Metrics.task6.AUC:0.668302
+    Metrics.task7.AUC:0.571628
+[2025-08-07 05:51:41.831041] [train] [iter 59, tokens 5838, elapsed_time 3844.33 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.502952
+[2025-08-07 05:51:45.410728] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.675250
+    Metrics.task1.AUC:0.535291
+    Metrics.task2.AUC:0.580772
+    Metrics.task3.AUC:0.528397
+    Metrics.task4.AUC:0.573331
+    Metrics.task5.AUC:0.454436
+    Metrics.task6.AUC:0.679445
+    Metrics.task7.AUC:0.554677
+[2025-08-07 05:51:45.665933] [train] [iter 69, tokens 5683, elapsed_time 3834.79 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.569366
+[2025-08-07 05:51:49.258111] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.680725
+    Metrics.task1.AUC:0.548197
+    Metrics.task2.AUC:0.555358
+    Metrics.task3.AUC:0.542391
+    Metrics.task4.AUC:0.542021
+    Metrics.task5.AUC:0.453439
+    Metrics.task6.AUC:0.683864
+    Metrics.task7.AUC:0.576146
+[2025-08-07 05:51:49.517843] [train] [iter 79, tokens 5882, elapsed_time 3851.97 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.591547
+[2025-08-07 05:51:53.113092] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.688818
+    Metrics.task1.AUC:0.570478
+    Metrics.task2.AUC:0.565589
+    Metrics.task3.AUC:0.553101
+    Metrics.task4.AUC:0.557828
+    Metrics.task5.AUC:0.465324
+    Metrics.task6.AUC:0.689471
+    Metrics.task7.AUC:0.583824
+[2025-08-07 05:51:53.320992] [train] [iter 89, tokens 5873, elapsed_time 3803.13 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.453184
+[2025-08-07 05:51:56.901269] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.691034
+    Metrics.task1.AUC:0.561400
+    Metrics.task2.AUC:0.570224
+    Metrics.task3.AUC:0.530295
+    Metrics.task4.AUC:0.560657
+    Metrics.task5.AUC:0.462913
+    Metrics.task6.AUC:0.693739
+    Metrics.task7.AUC:0.580361
+[2025-08-07 05:51:57.118868] [train] [iter 99, tokens 5737, elapsed_time 3797.86 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.506674
+[2025-08-07 05:52:00.731456] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.693975
+    Metrics.task1.AUC:0.573647
+    Metrics.task2.AUC:0.549654
+    Metrics.task3.AUC:0.580514
+    Metrics.task4.AUC:0.552728
+    Metrics.task5.AUC:0.501215
+    Metrics.task6.AUC:0.695855
+    Metrics.task7.AUC:0.596918
+[2025-08-07 05:52:00.963873] [train] [iter 109, tokens 5757, elapsed_time 3844.98 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.376243
+[2025-08-07 05:52:04.558784] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.693786
+    Metrics.task1.AUC:0.598254
+    Metrics.task2.AUC:0.585960
+    Metrics.task3.AUC:0.582099
+    Metrics.task4.AUC:0.586642
+    Metrics.task5.AUC:0.499827
+    Metrics.task6.AUC:0.697393
+    Metrics.task7.AUC:0.595340
+[2025-08-07 05:52:04.809680] [train] [iter 119, tokens 5764, elapsed_time 3845.56 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.380281
+[2025-08-07 05:52:08.421729] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.697624
+    Metrics.task1.AUC:0.587286
+    Metrics.task2.AUC:0.535244
+    Metrics.task3.AUC:0.589496
+    Metrics.task4.AUC:0.536570
+    Metrics.task5.AUC:0.514598
+    Metrics.task6.AUC:0.699593
+    Metrics.task7.AUC:0.600101
+[2025-08-07 05:52:08.679263] [train] [iter 129, tokens 5873, elapsed_time 3869.77 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.278894
+[2025-08-07 05:52:12.278587] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.703231
+    Metrics.task1.AUC:0.608852
+    Metrics.task2.AUC:0.564367
+    Metrics.task3.AUC:0.590757
+    Metrics.task4.AUC:0.560812
+    Metrics.task5.AUC:0.525115
+    Metrics.task6.AUC:0.705305
+    Metrics.task7.AUC:0.605815
+[2025-08-07 05:52:12.536919] [train] [iter 139, tokens 5713, elapsed_time 3857.62 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.363961
+[2025-08-07 05:52:16.146522] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.705181
+    Metrics.task1.AUC:0.617088
+    Metrics.task2.AUC:0.553892
+    Metrics.task3.AUC:0.580582
+    Metrics.task4.AUC:0.560286
+    Metrics.task5.AUC:0.518329
+    Metrics.task6.AUC:0.707595
+    Metrics.task7.AUC:0.606372
+[2025-08-07 05:52:16.415645] [train] [iter 149, tokens 5849, elapsed_time 3878.57 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.370817
+[2025-08-07 05:52:20.021341] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.704940
+    Metrics.task1.AUC:0.643705
+    Metrics.task2.AUC:0.582756
+    Metrics.task3.AUC:0.601614
+    Metrics.task4.AUC:0.573678
+    Metrics.task5.AUC:0.538075
+    Metrics.task6.AUC:0.706708
+    Metrics.task7.AUC:0.621282
+[2025-08-07 05:52:20.279380] [train] [iter 159, tokens 5901, elapsed_time 3863.84 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.436125
+[2025-08-07 05:52:23.881836] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.706669
+    Metrics.task1.AUC:0.662259
+    Metrics.task2.AUC:0.581096
+    Metrics.task3.AUC:0.582330
+    Metrics.task4.AUC:0.572787
+    Metrics.task5.AUC:0.520828
+    Metrics.task6.AUC:0.709431
+    Metrics.task7.AUC:0.622734
+[2025-08-07 05:52:24.142824] [train] [iter 169, tokens 5631, elapsed_time 3863.24 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.302985
+[2025-08-07 05:52:27.745935] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.706401
+    Metrics.task1.AUC:0.704821
+    Metrics.task2.AUC:0.607352
+    Metrics.task3.AUC:0.580858
+    Metrics.task4.AUC:0.588555
+    Metrics.task5.AUC:0.525084
+    Metrics.task6.AUC:0.709710
+    Metrics.task7.AUC:0.620786
+[2025-08-07 05:52:28.005778] [train] [iter 179, tokens 5730, elapsed_time 3863.10 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.398582
+[2025-08-07 05:52:31.595309] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.710321
+    Metrics.task1.AUC:0.707666
+    Metrics.task2.AUC:0.601955
+    Metrics.task3.AUC:0.598157
+    Metrics.task4.AUC:0.585002
+    Metrics.task5.AUC:0.533040
+    Metrics.task6.AUC:0.712458
+    Metrics.task7.AUC:0.628251
+[2025-08-07 05:52:31.855691] [train] [iter 189, tokens 5676, elapsed_time 3849.88 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.433964
+[2025-08-07 05:52:35.444181] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.710142
+    Metrics.task1.AUC:0.710283
+    Metrics.task2.AUC:0.613408
+    Metrics.task3.AUC:0.617390
+    Metrics.task4.AUC:0.596380
+    Metrics.task5.AUC:0.533457
+    Metrics.task6.AUC:0.712749
+    Metrics.task7.AUC:0.630698
+[2025-08-07 05:52:35.702318] [train] [iter 199, tokens 5794, elapsed_time 3846.63 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.396279
+[2025-08-07 05:52:39.296182] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.711412
+    Metrics.task1.AUC:0.710671
+    Metrics.task2.AUC:0.632119
+    Metrics.task3.AUC:0.616101
+    Metrics.task4.AUC:0.613141
+    Metrics.task5.AUC:0.537494
+    Metrics.task6.AUC:0.713789
+    Metrics.task7.AUC:0.627323
+[2025-08-07 05:52:39.570624] [train] [iter 209, tokens 5698, elapsed_time 3868.18 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.406616
+[2025-08-07 05:52:43.159221] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.711580
+    Metrics.task1.AUC:0.729258
+    Metrics.task2.AUC:0.624767
+    Metrics.task3.AUC:0.620870
+    Metrics.task4.AUC:0.615871
+    Metrics.task5.AUC:0.526569
+    Metrics.task6.AUC:0.713812
+    Metrics.task7.AUC:0.631655
+[2025-08-07 05:52:43.418844] [train] [iter 219, tokens 5677, elapsed_time 3848.30 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.390364
+[2025-08-07 05:52:46.999446] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.712842
+    Metrics.task1.AUC:0.755187
+    Metrics.task2.AUC:0.648404
+    Metrics.task3.AUC:0.624476
+    Metrics.task4.AUC:0.624167
+    Metrics.task5.AUC:0.526564
+    Metrics.task6.AUC:0.715493
+    Metrics.task7.AUC:0.638364
+[2025-08-07 05:52:47.263767] [train] [iter 229, tokens 5864, elapsed_time 3844.60 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.467603
+[2025-08-07 05:52:50.862034] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.710968
+    Metrics.task1.AUC:0.764753
+    Metrics.task2.AUC:0.621992
+    Metrics.task3.AUC:0.642550
+    Metrics.task4.AUC:0.602115
+    Metrics.task5.AUC:0.552760
+    Metrics.task6.AUC:0.713212
+    Metrics.task7.AUC:0.655199
+[2025-08-07 05:52:51.121732] [train] [iter 239, tokens 5663, elapsed_time 3858.23 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.382650
+[2025-08-07 05:52:54.705889] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.712397
+    Metrics.task1.AUC:0.784168
+    Metrics.task2.AUC:0.643895
+    Metrics.task3.AUC:0.639199
+    Metrics.task4.AUC:0.630626
+    Metrics.task5.AUC:0.566411
+    Metrics.task6.AUC:0.714680
+    Metrics.task7.AUC:0.646213
+[2025-08-07 05:52:54.964685] [train] [iter 249, tokens 5957, elapsed_time 3842.93 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.324082
+[2025-08-07 05:52:58.543080] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.712510
+    Metrics.task1.AUC:0.788818
+    Metrics.task2.AUC:0.652660
+    Metrics.task3.AUC:0.623375
+    Metrics.task4.AUC:0.628073
+    Metrics.task5.AUC:0.567203
+    Metrics.task6.AUC:0.714919
+    Metrics.task7.AUC:0.640463
+[2025-08-07 05:52:58.801291] [train] [iter 259, tokens 5800, elapsed_time 3836.56 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.554116
+[2025-08-07 05:53:02.391243] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.714560
+    Metrics.task1.AUC:0.769416
+    Metrics.task2.AUC:0.641239
+    Metrics.task3.AUC:0.610813
+    Metrics.task4.AUC:0.612781
+    Metrics.task5.AUC:0.544908
+    Metrics.task6.AUC:0.717834
+    Metrics.task7.AUC:0.646851
+[2025-08-07 05:53:02.657780] [train] [iter 269, tokens 5815, elapsed_time 3856.43 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.468083
+[2025-08-07 05:53:06.243110] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.714219
+    Metrics.task1.AUC:0.773530
+    Metrics.task2.AUC:0.631362
+    Metrics.task3.AUC:0.605741
+    Metrics.task4.AUC:0.597296
+    Metrics.task5.AUC:0.526912
+    Metrics.task6.AUC:0.718320
+    Metrics.task7.AUC:0.650362
+[2025-08-07 05:53:06.499775] [train] [iter 279, tokens 5877, elapsed_time 3842.03 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.349621
+[2025-08-07 05:53:10.094022] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.713558
+    Metrics.task1.AUC:0.779904
+    Metrics.task2.AUC:0.629193
+    Metrics.task3.AUC:0.619174
+    Metrics.task4.AUC:0.597687
+    Metrics.task5.AUC:0.547921
+    Metrics.task6.AUC:0.716656
+    Metrics.task7.AUC:0.654761
+[2025-08-07 05:53:10.358204] [train] [iter 289, tokens 5726, elapsed_time 3858.36 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.411370
+[2025-08-07 05:53:13.945279] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.715258
+    Metrics.task1.AUC:0.785968
+    Metrics.task2.AUC:0.627847
+    Metrics.task3.AUC:0.622550
+    Metrics.task4.AUC:0.596962
+    Metrics.task5.AUC:0.551152
+    Metrics.task6.AUC:0.718277
+    Metrics.task7.AUC:0.656956
+[2025-08-07 05:53:14.207091] [train] [iter 299, tokens 5787, elapsed_time 3848.67 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.408945
+[2025-08-07 05:53:17.800477] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.716561
+    Metrics.task1.AUC:0.807345
+    Metrics.task2.AUC:0.663806
+    Metrics.task3.AUC:0.633158
+    Metrics.task4.AUC:0.624536
+    Metrics.task5.AUC:0.545964
+    Metrics.task6.AUC:0.719378
+    Metrics.task7.AUC:0.669315
+[2025-08-07 05:53:18.059862] [train] [iter 309, tokens 5759, elapsed_time 3852.72 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.387185
+[2025-08-07 05:53:21.661948] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.717352
+    Metrics.task1.AUC:0.803359
+    Metrics.task2.AUC:0.641589
+    Metrics.task3.AUC:0.602527
+    Metrics.task4.AUC:0.613477
+    Metrics.task5.AUC:0.518468
+    Metrics.task6.AUC:0.720315
+    Metrics.task7.AUC:0.648841
+[2025-08-07 05:53:21.923361] [train] [iter 319, tokens 5865, elapsed_time 3863.71 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.477674
+[2025-08-07 05:53:25.523156] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.715428
+    Metrics.task1.AUC:0.799315
+    Metrics.task2.AUC:0.651073
+    Metrics.task3.AUC:0.640657
+    Metrics.task4.AUC:0.616116
+    Metrics.task5.AUC:0.570113
+    Metrics.task6.AUC:0.717896
+    Metrics.task7.AUC:0.654102
+[2025-08-07 05:53:25.782071] [train] [iter 329, tokens 5899, elapsed_time 3858.70 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.465338
+[2025-08-07 05:53:29.373149] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.714501
+    Metrics.task1.AUC:0.803878
+    Metrics.task2.AUC:0.667001
+    Metrics.task3.AUC:0.619194
+    Metrics.task4.AUC:0.608359
+    Metrics.task5.AUC:0.563701
+    Metrics.task6.AUC:0.716666
+    Metrics.task7.AUC:0.653793
+[2025-08-07 05:53:29.629031] [train] [iter 339, tokens 5718, elapsed_time 3846.95 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.248474
+[2025-08-07 05:53:33.220813] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.717334
+    Metrics.task1.AUC:0.804763
+    Metrics.task2.AUC:0.677537
+    Metrics.task3.AUC:0.623419
+    Metrics.task4.AUC:0.617421
+    Metrics.task5.AUC:0.534190
+    Metrics.task6.AUC:0.720932
+    Metrics.task7.AUC:0.652435
+[2025-08-07 05:53:33.480562] [train] [iter 349, tokens 5800, elapsed_time 3851.28 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.530000
+[2025-08-07 05:53:37.071275] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.718731
+    Metrics.task1.AUC:0.812111
+    Metrics.task2.AUC:0.682010
+    Metrics.task3.AUC:0.633587
+    Metrics.task4.AUC:0.624370
+    Metrics.task5.AUC:0.539580
+    Metrics.task6.AUC:0.722246
+    Metrics.task7.AUC:0.659203
+[2025-08-07 05:53:37.333338] [train] [iter 359, tokens 5748, elapsed_time 3852.94 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.497796
+[2025-08-07 05:53:40.917356] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.718857
+    Metrics.task1.AUC:0.806840
+    Metrics.task2.AUC:0.658823
+    Metrics.task3.AUC:0.654925
+    Metrics.task4.AUC:0.598755
+    Metrics.task5.AUC:0.567139
+    Metrics.task6.AUC:0.722017
+    Metrics.task7.AUC:0.673172
+[2025-08-07 05:53:41.174136] [train] [iter 369, tokens 5727, elapsed_time 3840.83 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.348102
+[2025-08-07 05:53:44.755646] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.719651
+    Metrics.task1.AUC:0.808561
+    Metrics.task2.AUC:0.656883
+    Metrics.task3.AUC:0.649333
+    Metrics.task4.AUC:0.606532
+    Metrics.task5.AUC:0.567193
+    Metrics.task6.AUC:0.723060
+    Metrics.task7.AUC:0.672999
+[2025-08-07 05:53:45.025901] [train] [iter 379, tokens 5645, elapsed_time 3851.59 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.364232
+[2025-08-07 05:53:48.620998] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.719420
+    Metrics.task1.AUC:0.814624
+    Metrics.task2.AUC:0.675229
+    Metrics.task3.AUC:0.639281
+    Metrics.task4.AUC:0.618951
+    Metrics.task5.AUC:0.566851
+    Metrics.task6.AUC:0.722778
+    Metrics.task7.AUC:0.665236
+[2025-08-07 05:53:48.879795] [train] [iter 389, tokens 5704, elapsed_time 3854.00 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.474639
+[2025-08-07 05:53:52.457882] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.719297
+    Metrics.task1.AUC:0.821283
+    Metrics.task2.AUC:0.685741
+    Metrics.task3.AUC:0.636523
+    Metrics.task4.AUC:0.632979
+    Metrics.task5.AUC:0.541857
+    Metrics.task6.AUC:0.723191
+    Metrics.task7.AUC:0.653994
+[2025-08-07 05:53:52.727938] [train] [iter 399, tokens 5754, elapsed_time 3848.02 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.485159
+[2025-08-07 05:53:56.309014] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.718917
+    Metrics.task1.AUC:0.822574
+    Metrics.task2.AUC:0.667277
+    Metrics.task3.AUC:0.667295
+    Metrics.task4.AUC:0.628085
+    Metrics.task5.AUC:0.562209
+    Metrics.task6.AUC:0.722875
+    Metrics.task7.AUC:0.654835
+[2025-08-07 05:53:56.565300] [train] [iter 409, tokens 5798, elapsed_time 3837.44 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.495797
+[2025-08-07 05:54:00.160139] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721020
+    Metrics.task1.AUC:0.827442
+    Metrics.task2.AUC:0.667855
+    Metrics.task3.AUC:0.656710
+    Metrics.task4.AUC:0.638348
+    Metrics.task5.AUC:0.553066
+    Metrics.task6.AUC:0.724552
+    Metrics.task7.AUC:0.646898
+[2025-08-07 05:54:00.418952] [train] [iter 419, tokens 5687, elapsed_time 3853.62 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.494035
+[2025-08-07 05:54:04.006221] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.720631
+    Metrics.task1.AUC:0.816569
+    Metrics.task2.AUC:0.662863
+    Metrics.task3.AUC:0.678019
+    Metrics.task4.AUC:0.630363
+    Metrics.task5.AUC:0.586417
+    Metrics.task6.AUC:0.723911
+    Metrics.task7.AUC:0.657324
+[2025-08-07 05:54:04.250269] [train] [iter 429, tokens 5828, elapsed_time 3831.33 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.448886
+[2025-08-07 05:54:07.839665] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721387
+    Metrics.task1.AUC:0.813639
+    Metrics.task2.AUC:0.659413
+    Metrics.task3.AUC:0.653625
+    Metrics.task4.AUC:0.630061
+    Metrics.task5.AUC:0.555688
+    Metrics.task6.AUC:0.724807
+    Metrics.task7.AUC:0.654184
+[2025-08-07 05:54:08.083080] [train] [iter 439, tokens 5880, elapsed_time 3832.78 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.363746
+[2025-08-07 05:54:11.676143] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.722017
+    Metrics.task1.AUC:0.821656
+    Metrics.task2.AUC:0.673526
+    Metrics.task3.AUC:0.657325
+    Metrics.task4.AUC:0.633033
+    Metrics.task5.AUC:0.548483
+    Metrics.task6.AUC:0.725719
+    Metrics.task7.AUC:0.656636
+[2025-08-07 05:54:11.921530] [train] [iter 449, tokens 5729, elapsed_time 3838.41 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.464093
+[2025-08-07 05:54:15.519449] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721495
+    Metrics.task1.AUC:0.822643
+    Metrics.task2.AUC:0.670520
+    Metrics.task3.AUC:0.631372
+    Metrics.task4.AUC:0.632056
+    Metrics.task5.AUC:0.528249
+    Metrics.task6.AUC:0.725314
+    Metrics.task7.AUC:0.653725
+[2025-08-07 05:54:15.763699] [train] [iter 459, tokens 5759, elapsed_time 3842.16 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.528075
+[2025-08-07 05:54:19.365693] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.722022
+    Metrics.task1.AUC:0.825146
+    Metrics.task2.AUC:0.674236
+    Metrics.task3.AUC:0.640472
+    Metrics.task4.AUC:0.639082
+    Metrics.task5.AUC:0.526661
+    Metrics.task6.AUC:0.725717
+    Metrics.task7.AUC:0.660789
+[2025-08-07 05:54:19.610144] [train] [iter 469, tokens 5881, elapsed_time 3846.42 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.411426
+[2025-08-07 05:54:23.210243] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.722559
+    Metrics.task1.AUC:0.827992
+    Metrics.task2.AUC:0.671811
+    Metrics.task3.AUC:0.665899
+    Metrics.task4.AUC:0.631471
+    Metrics.task5.AUC:0.548183
+    Metrics.task6.AUC:0.726389
+    Metrics.task7.AUC:0.668958
+[2025-08-07 05:54:23.454730] [train] [iter 479, tokens 5759, elapsed_time 3844.55 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.343190
+[2025-08-07 05:54:27.045245] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721166
+    Metrics.task1.AUC:0.820370
+    Metrics.task2.AUC:0.672174
+    Metrics.task3.AUC:0.631589
+    Metrics.task4.AUC:0.630833
+    Metrics.task5.AUC:0.541438
+    Metrics.task6.AUC:0.724758
+    Metrics.task7.AUC:0.660715
+[2025-08-07 05:54:27.289258] [train] [iter 489, tokens 5755, elapsed_time 3834.50 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.295457
+[2025-08-07 05:54:30.884569] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721501
+    Metrics.task1.AUC:0.825457
+    Metrics.task2.AUC:0.689632
+    Metrics.task3.AUC:0.662929
+    Metrics.task4.AUC:0.630918
+    Metrics.task5.AUC:0.559393
+    Metrics.task6.AUC:0.724909
+    Metrics.task7.AUC:0.670639
+[2025-08-07 05:54:31.141941] [train] [iter 499, tokens 5784, elapsed_time 3852.67 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.330451
+[2025-08-07 05:54:34.741205] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721864
+    Metrics.task1.AUC:0.823436
+    Metrics.task2.AUC:0.664441
+    Metrics.task3.AUC:0.645282
+    Metrics.task4.AUC:0.626508
+    Metrics.task5.AUC:0.553267
+    Metrics.task6.AUC:0.725266
+    Metrics.task7.AUC:0.662836
+[2025-08-07 05:54:34.999788] [train] [iter 509, tokens 5760, elapsed_time 3857.83 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.445080
+[2025-08-07 05:54:38.598891] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.719515
+    Metrics.task1.AUC:0.820774
+    Metrics.task2.AUC:0.685414
+    Metrics.task3.AUC:0.670693
+    Metrics.task4.AUC:0.630873
+    Metrics.task5.AUC:0.559611
+    Metrics.task6.AUC:0.721326
+    Metrics.task7.AUC:0.667165
+[2025-08-07 05:54:38.857092] [train] [iter 519, tokens 5969, elapsed_time 3857.28 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.353032
+[2025-08-07 05:54:42.455425] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.720159
+    Metrics.task1.AUC:0.817312
+    Metrics.task2.AUC:0.684290
+    Metrics.task3.AUC:0.640086
+    Metrics.task4.AUC:0.635553
+    Metrics.task5.AUC:0.543916
+    Metrics.task6.AUC:0.723606
+    Metrics.task7.AUC:0.660831
+[2025-08-07 05:54:42.711205] [train] [iter 529, tokens 5767, elapsed_time 3854.09 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.423374
+[2025-08-07 05:54:46.302468] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.721281
+    Metrics.task1.AUC:0.819962
+    Metrics.task2.AUC:0.689892
+    Metrics.task3.AUC:0.631470
+    Metrics.task4.AUC:0.627650
+    Metrics.task5.AUC:0.528512
+    Metrics.task6.AUC:0.725049
+    Metrics.task7.AUC:0.659431
+[2025-08-07 05:54:46.561809] [train] [iter 539, tokens 5798, elapsed_time 3850.56 ms, achieved FLOPS 0.04 TFLOPS]: loss 1.534532
+[2025-08-07 05:54:50.161215] [eval] [eval 7520 users]:
+    Metrics.task0.AUC:0.722338
+    Metrics.task1.AUC:0.822722
+    Metrics.task2.AUC:0.696804
+    Metrics.task3.AUC:0.642951
+    Metrics.task4.AUC:0.634692
+    Metrics.task5.AUC:0.535010
+    Metrics.task6.AUC:0.724857
+    Metrics.task7.AUC:0.671872
+[rank0]:[W807 05:54:51.586398182 ProcessGroupNCCL.cpp:1294] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())

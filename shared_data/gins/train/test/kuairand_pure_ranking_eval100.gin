@@ -1,0 +1,40 @@
+TrainerArgs.train_batch_size = 32
+TrainerArgs.eval_batch_size = 32
+TrainerArgs.log_interval = 10
+TrainerArgs.eval_interval =100
+TrainerArgs.profile = True
+# TrainerArgs.max_train_iters = 10
+TrainerArgs.ckpt_save_at_end = False
+
+###   Attention !!!!!! `
+DatasetArgs.dataset_name = 'kuairand-pure'
+TrainerArgs.ckpt_save_dir = "/workspace/recsys-examples/data/ckpts/kuairand-pure/ranking"
+# TrainerArgs.ckpt_load_dir = '/workspace/recsys-examples/data/ckpts/kuairand-pure/ranking/2025_08_06-11_54_24/final-iter10'
+
+
+DatasetArgs.max_sequence_length = 910
+DatasetArgs.max_num_candidates = 20
+DatasetArgs.shuffle = True
+DatasetArgs.dataset_path = '/workspace/recsys-shared_data/used_data'
+# slide_window
+DatasetArgs.use_time_window = True
+DatasetArgs.max_window_slide_cnt = 10
+DatasetArgs.time_interval_ms = 3600000
+# DatasetArgs.current_time_ms = None
+
+NetworkArgs.num_layers = 2
+NetworkArgs.num_attention_heads = 4
+NetworkArgs.hidden_size = 128
+# per head dim
+NetworkArgs.kv_channels = 128
+
+RankingArgs.prediction_head_arch = [
+    512, 8
+]
+RankingArgs.prediction_head_bias = True
+RankingArgs.num_tasks = 8
+
+OptimizerArgs.optimizer_str = 'adam'
+OptimizerArgs.learning_rate = 1e-3
+
+TensorModelParallelArgs.tensor_model_parallel_size = 1

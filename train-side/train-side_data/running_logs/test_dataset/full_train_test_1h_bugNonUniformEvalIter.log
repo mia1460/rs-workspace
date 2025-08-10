@@ -1,0 +1,773 @@
+[2025-08-07 11:49:23] [DEBUG] __main__ (pretrain_gr_ranking.py:32): successfully init logging
+/usr/local/lib/python3.12/dist-packages/rapids_dask_dependency/dask_loader.py:36: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  return importlib.import_module(spec.name)
+[2025-08-07 11:49:31.729464] distributed env initialization done. Free cuda memory: 23622.44 MB
+RankingGR(
+  (_embedding_collection): ShardedEmbedding(
+    (_model_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (video_id): Embedding(10000000, 128)
+        (user_id): Embedding(10000000, 128)
+      )
+    )
+    (_data_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (user_active_degree): Embedding(10, 128)
+        (follow_user_num_range): Embedding(9, 128)
+        (fans_user_num_range): Embedding(10, 128)
+        (friend_user_num_range): Embedding(8, 128)
+        (register_days_range): Embedding(8, 128)
+        (action_weights): Embedding(226, 128)
+      )
+    )
+  )
+  (_hstu_block): HSTUBlock(
+    (_preprocessor): HSTUBlockPreprocessor(
+      (_positional_encoder): HSTUPositionalEncoder()
+    )
+    (_postprocessor): HSTUBlockPostprocessor()
+    (_attention_layers): ModuleList(
+      (0-1): 2 x FusedHSTULayer()
+    )
+  )
+  (_mlp): MLP(
+    (_mlp): Sequential(
+      (0): Linear(in_features=128, out_features=512, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=512, out_features=8, bias=True)
+      (3): Identity()
+    )
+  )
+  (_loss_module): MultiTaskLossModule(
+    (_loss_modules): BCEWithLogitsLoss()
+  )
+  (_metric_module): MultiClassificationTaskMetric(
+    (_eval_metrics_modules): ModuleList(
+      (0-7): 8 x BinaryAUROC()
+    )
+  )
+)
+
+
+table name |          | memory(MB) |             |         | hbm(MB)/cuda:0 |             |          |  dram(MB) |            
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+           | total    | embedding  | optim_state | total   | embedding      | optim_state | total    | embedding | optim_state
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+video_id   | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+user_id    | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:48] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-07 11:49:49.158535] [SequenceDataset] Filtered samples with short sequences: 5947 removed, 19063 remaining.
+[2025-08-07 11:49:49.520774] [SequenceDataset.__init__]current_time is 1649479612164, earliest time is 1649476012164
+[2025-08-07 11:49:53.023243] [SequenceDataset] Filtered samples with short sequences: 5947 removed, 19063 remaining.
+[2025-08-07 11:49:53.076466] [SequenceDataset.__init__]current_time is 1649479563278, earliest time is 1649475963278
+[2025-08-07 11:49:53.875068] model initialization done, start training. Free cuda memory: 14446.44 MB
+[2025-08-07 11:49:53.875818] =========Traning time window 0============
+[2025-08-07 11:49:53.876611] Time window (in ms): [1649497612164, 1649501212164], users cnt: 2, 
+[2025-08-07 11:49:53.876829] before batched, max_train_iters: 1, n: 10, actual_train_iter: 0
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-07 11:50:00.717520] =========Traning time window 1============
+[2025-08-07 11:50:00.717594] Time window (in ms): [1649501212164, 1649504812164], users cnt: 5, 
+[2025-08-07 11:50:00.717841] before batched, max_train_iters: 1, n: 10, actual_train_iter: 1
+[2025-08-07 11:50:03.121682] =========Traning time window 2============
+[2025-08-07 11:50:03.121753] Time window (in ms): [1649504812164, 1649508412164], users cnt: 9, 
+[2025-08-07 11:50:03.121964] before batched, max_train_iters: 1, n: 10, actual_train_iter: 2
+[2025-08-07 11:50:03.634742] =========Traning time window 3============
+[2025-08-07 11:50:03.634837] Time window (in ms): [1649508412164, 1649512012164], users cnt: 29, 
+[2025-08-07 11:50:03.635079] before batched, max_train_iters: 1, n: 10, actual_train_iter: 3
+[2025-08-07 11:50:06.050507] =========Traning time window 4============
+[2025-08-07 11:50:06.050574] Time window (in ms): [1649512012164, 1649515612164], users cnt: 61, 
+[2025-08-07 11:50:06.050740] before batched, max_train_iters: 2, n: 10, actual_train_iter: 4
+[2025-08-07 11:50:06.575073] =========Traning time window 5============
+[2025-08-07 11:50:06.575143] Time window (in ms): [1649515612164, 1649519212164], users cnt: 78, 
+[2025-08-07 11:50:06.575311] before batched, max_train_iters: 3, n: 10, actual_train_iter: 6
+[2025-08-07 11:50:07.095536] [train] [iter 9, tokens 3680, elapsed_time 12773.96 ms, achieved FLOPS 0.00 TFLOPS]: loss 3.889670
+[2025-08-07 11:50:07.583828] =========Traning time window 6============
+[2025-08-07 11:50:07.583906] Time window (in ms): [1649519212164, 1649522812164], users cnt: 82, 
+[2025-08-07 11:50:07.584150] before batched, max_train_iters: 3, n: 10, actual_train_iter: 9
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-07 11:50:08.145860] =========Traning time window 7============
+[2025-08-07 11:50:08.145935] Time window (in ms): [1649522812164, 1649526412164], users cnt: 61, 
+[2025-08-07 11:50:08.146128] before batched, max_train_iters: 2, n: 10, actual_train_iter: 12
+[2025-08-07 11:50:08.696393] =========Traning time window 8============
+[2025-08-07 11:50:08.696461] Time window (in ms): [1649526412164, 1649530012164], users cnt: 54, 
+[2025-08-07 11:50:08.696611] before batched, max_train_iters: 2, n: 10, actual_train_iter: 14
+[2025-08-07 11:50:09.223124] =========Traning time window 9============
+[2025-08-07 11:50:09.223188] Time window (in ms): [1649530012164, 1649533612164], users cnt: 42, 
+[2025-08-07 11:50:09.223329] before batched, max_train_iters: 2, n: 10, actual_train_iter: 16
+[2025-08-07 11:50:09.747660] =========Traning time window 10============
+[2025-08-07 11:50:09.747728] Time window (in ms): [1649533612164, 1649537212164], users cnt: 23, 
+[2025-08-07 11:50:09.747876] before batched, max_train_iters: 1, n: 10, actual_train_iter: 18
+[2025-08-07 11:50:10.007997] [train] [iter 19, tokens 5240, elapsed_time 3126.07 ms, achieved FLOPS 0.02 TFLOPS]: loss 2.222184
+[2025-08-07 11:50:10.489907] =========Traning time window 11============
+[2025-08-07 11:50:10.489969] Time window (in ms): [1649537212164, 1649540812164], users cnt: 25, 
+[2025-08-07 11:50:10.490125] before batched, max_train_iters: 1, n: 10, actual_train_iter: 19
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-07 11:50:10.518138] [eval debug] actual_train_iter is 20
+/usr/local/lib/python3.12/dist-packages/torchmetrics/utilities/prints.py:42: UserWarning: No positive samples in targets, true positive value should be meaningless. Returning zero tensor in true positive score
+  warnings.warn(*args, **kwargs)  # noqa: B028
+[2025-08-07 11:50:10.580550] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.666667
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.784314
+    Metrics.task7.AUC:0.444444
+[2025-08-07 11:50:11.057382] =========Traning time window 12============
+[2025-08-07 11:50:11.057452] Time window (in ms): [1649540812164, 1649544412164], users cnt: 44, 
+[2025-08-07 11:50:11.057659] before batched, max_train_iters: 2, n: 10, actual_train_iter: 20
+[2025-08-07 11:50:11.613583] =========Traning time window 13============
+[2025-08-07 11:50:11.613670] Time window (in ms): [1649544412164, 1649548012164], users cnt: 96, 
+[2025-08-07 11:50:11.613881] before batched, max_train_iters: 3, n: 10, actual_train_iter: 22
+[2025-08-07 11:50:14.086979] =========Traning time window 14============
+[2025-08-07 11:50:14.087052] Time window (in ms): [1649548012164, 1649551612164], users cnt: 165, 
+[2025-08-07 11:50:14.087223] before batched, max_train_iters: 6, n: 10, actual_train_iter: 25
+[2025-08-07 11:50:14.197486] [train] [iter 29, tokens 5860, elapsed_time 4421.29 ms, achieved FLOPS 0.02 TFLOPS]: loss 1.493680
+[2025-08-07 11:50:14.763766] =========Traning time window 15============
+[2025-08-07 11:50:14.763844] Time window (in ms): [1649551612164, 1649555212164], users cnt: 265, 
+[2025-08-07 11:50:14.764051] before batched, max_train_iters: 9, n: 10, actual_train_iter: 31
+[2025-08-07 11:50:14.971430] [train] [iter 39, tokens 5860, elapsed_time 774.02 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.426427
+[2025-08-07 11:50:14.992360] [eval debug] actual_train_iter is 40
+[2025-08-07 11:50:15.017670] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.676471
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.705882
+    Metrics.task7.AUC:0.333333
+[2025-08-07 11:50:15.536963] =========Traning time window 16============
+[2025-08-07 11:50:15.537047] Time window (in ms): [1649555212164, 1649558812164], users cnt: 347, 
+[2025-08-07 11:50:15.537261] before batched, max_train_iters: 11, n: 10, actual_train_iter: 40
+[2025-08-07 11:50:15.773033] [train] [iter 49, tokens 5940, elapsed_time 801.65 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.346851
+[2025-08-07 11:50:15.793875] [eval debug] actual_train_iter is 50
+[2025-08-07 11:50:15.819083] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.647059
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.647059
+    Metrics.task7.AUC:0.513889
+[2025-08-07 11:50:16.378201] =========Traning time window 17============
+[2025-08-07 11:50:16.378267] Time window (in ms): [1649558812164, 1649562412164], users cnt: 447, 
+[2025-08-07 11:50:16.378414] before batched, max_train_iters: 14, n: 10, actual_train_iter: 51
+[2025-08-07 11:50:16.590755] [train] [iter 59, tokens 6300, elapsed_time 817.79 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.141103
+[2025-08-07 11:50:17.288252] =========Traning time window 18============
+[2025-08-07 11:50:17.288320] Time window (in ms): [1649562412164, 1649566012164], users cnt: 539, 
+[2025-08-07 11:50:17.288467] before batched, max_train_iters: 17, n: 10, actual_train_iter: 65
+[2025-08-07 11:50:17.399957] [train] [iter 69, tokens 6380, elapsed_time 809.18 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.369030
+[2025-08-07 11:50:17.649558] [train] [iter 79, tokens 6400, elapsed_time 249.63 ms, achieved FLOPS 0.32 TFLOPS]: loss 1.177321
+[2025-08-07 11:50:18.295869] =========Traning time window 19============
+[2025-08-07 11:50:18.295936] Time window (in ms): [1649566012164, 1649569612164], users cnt: 637, 
+[2025-08-07 11:50:18.296088] before batched, max_train_iters: 20, n: 10, actual_train_iter: 82
+[2025-08-07 11:50:18.482482] [train] [iter 89, tokens 6300, elapsed_time 832.91 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.218581
+[2025-08-07 11:50:18.729708] [train] [iter 99, tokens 6400, elapsed_time 247.26 ms, achieved FLOPS 0.33 TFLOPS]: loss 1.362041
+[2025-08-07 11:50:19.371552] =========Traning time window 20============
+[2025-08-07 11:50:19.371630] Time window (in ms): [1649569612164, 1649573212164], users cnt: 671, 
+[2025-08-07 11:50:19.371840] before batched, max_train_iters: 21, n: 10, actual_train_iter: 102
+[2025-08-07 11:50:19.558955] [train] [iter 109, tokens 6340, elapsed_time 829.11 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.430439
+[2025-08-07 11:50:19.809385] [train] [iter 119, tokens 6400, elapsed_time 250.51 ms, achieved FLOPS 0.33 TFLOPS]: loss 1.305174
+[2025-08-07 11:50:20.476419] =========Traning time window 21============
+[2025-08-07 11:50:20.476497] Time window (in ms): [1649573212164, 1649576812164], users cnt: 713, 
+[2025-08-07 11:50:20.476705] before batched, max_train_iters: 23, n: 10, actual_train_iter: 123
+[2025-08-07 11:50:20.630711] [train] [iter 129, tokens 6380, elapsed_time 821.32 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.306629
+[2025-08-07 11:50:20.867045] [train] [iter 139, tokens 6400, elapsed_time 236.40 ms, achieved FLOPS 0.36 TFLOPS]: loss 1.382344
+[2025-08-07 11:50:21.637447] =========Traning time window 22============
+[2025-08-07 11:50:21.637520] Time window (in ms): [1649576812164, 1649580412164], users cnt: 818, 
+[2025-08-07 11:50:21.637673] before batched, max_train_iters: 26, n: 10, actual_train_iter: 146
+[2025-08-07 11:50:21.723982] [train] [iter 149, tokens 5940, elapsed_time 856.91 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.336251
+[2025-08-07 11:50:21.973329] [train] [iter 159, tokens 6400, elapsed_time 249.35 ms, achieved FLOPS 0.35 TFLOPS]: loss 1.391159
+[2025-08-07 11:50:22.225912] [train] [iter 169, tokens 6400, elapsed_time 252.59 ms, achieved FLOPS 0.33 TFLOPS]: loss 1.544351
+[2025-08-07 11:50:22.911174] =========Traning time window 23============
+[2025-08-07 11:50:22.911240] Time window (in ms): [1649580412164, 1649584012164], users cnt: 908, 
+[2025-08-07 11:50:22.911389] before batched, max_train_iters: 29, n: 10, actual_train_iter: 172
+[2025-08-07 11:50:23.089085] [train] [iter 179, tokens 6120, elapsed_time 863.14 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.151000
+[2025-08-07 11:50:23.332542] [train] [iter 189, tokens 6400, elapsed_time 243.50 ms, achieved FLOPS 0.36 TFLOPS]: loss 1.365358
+[2025-08-07 11:50:23.588507] [train] [iter 199, tokens 6400, elapsed_time 255.82 ms, achieved FLOPS 0.36 TFLOPS]: loss 1.289548
+[2025-08-07 11:50:24.486217] =========Traning time window 24============
+[2025-08-07 11:50:24.486291] Time window (in ms): [1649584012164, 1649587612164], users cnt: 968, 
+[2025-08-07 11:50:24.486484] before batched, max_train_iters: 31, n: 10, actual_train_iter: 201
+[2025-08-07 11:50:24.696210] [train] [iter 209, tokens 6000, elapsed_time 1107.82 ms, achieved FLOPS 0.08 TFLOPS]: loss 1.313392
+[2025-08-07 11:50:24.944596] [train] [iter 219, tokens 6400, elapsed_time 248.44 ms, achieved FLOPS 0.37 TFLOPS]: loss 1.307343
+[2025-08-07 11:50:25.197950] [train] [iter 229, tokens 6400, elapsed_time 253.31 ms, achieved FLOPS 0.34 TFLOPS]: loss 1.295559
+[2025-08-07 11:50:25.893374] =========Traning time window 25============
+[2025-08-07 11:50:25.893448] Time window (in ms): [1649587612164, 1649591212164], users cnt: 1066, 
+[2025-08-07 11:50:25.893619] before batched, max_train_iters: 34, n: 10, actual_train_iter: 232
+[2025-08-07 11:50:26.079205] [train] [iter 239, tokens 5920, elapsed_time 881.26 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.365640
+[2025-08-07 11:50:26.348165] [train] [iter 249, tokens 6400, elapsed_time 268.89 ms, achieved FLOPS 0.37 TFLOPS]: loss 1.130625
+[2025-08-07 11:50:26.635184] [train] [iter 259, tokens 6400, elapsed_time 287.01 ms, achieved FLOPS 0.32 TFLOPS]: loss 1.171140
+[2025-08-07 11:50:27.497281] =========Traning time window 26============
+[2025-08-07 11:50:27.497353] Time window (in ms): [1649591212164, 1649594812164], users cnt: 1222, 
+[2025-08-07 11:50:27.497505] before batched, max_train_iters: 39, n: 10, actual_train_iter: 266
+[2025-08-07 11:50:27.584350] [train] [iter 269, tokens 5960, elapsed_time 949.23 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.321324
+[2025-08-07 11:50:27.837598] [train] [iter 279, tokens 6400, elapsed_time 253.25 ms, achieved FLOPS 0.39 TFLOPS]: loss 1.332702
+[2025-08-07 11:50:28.088318] [train] [iter 289, tokens 6400, elapsed_time 250.77 ms, achieved FLOPS 0.38 TFLOPS]: loss 1.228813
+[2025-08-07 11:50:28.337792] [train] [iter 299, tokens 6400, elapsed_time 249.48 ms, achieved FLOPS 0.36 TFLOPS]: loss 1.276560
+[2025-08-07 11:50:29.172589] =========Traning time window 27============
+[2025-08-07 11:50:29.172666] Time window (in ms): [1649594812164, 1649598412164], users cnt: 1475, 
+[2025-08-07 11:50:29.172887] before batched, max_train_iters: 47, n: 10, actual_train_iter: 305
+[2025-08-07 11:50:29.285970] [train] [iter 309, tokens 5880, elapsed_time 948.02 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.275731
+[2025-08-07 11:50:29.573796] [train] [iter 319, tokens 6400, elapsed_time 287.59 ms, achieved FLOPS 0.33 TFLOPS]: loss 1.361244
+[2025-08-07 11:50:29.897163] [train] [iter 329, tokens 6400, elapsed_time 323.43 ms, achieved FLOPS 0.30 TFLOPS]: loss 1.350443
+[2025-08-07 11:50:30.227463] [train] [iter 339, tokens 6400, elapsed_time 330.25 ms, achieved FLOPS 0.31 TFLOPS]: loss 1.295028
+[2025-08-07 11:50:30.536621] [train] [iter 349, tokens 6400, elapsed_time 309.35 ms, achieved FLOPS 0.32 TFLOPS]: loss 1.392497
+[2025-08-07 11:50:31.373948] =========Traning time window 28============
+[2025-08-07 11:50:31.374025] Time window (in ms): [1649598412164, 1649602012164], users cnt: 1571, 
+[2025-08-07 11:50:31.374219] before batched, max_train_iters: 50, n: 10, actual_train_iter: 352
+[2025-08-07 11:50:31.514117] [train] [iter 359, tokens 5820, elapsed_time 977.66 ms, achieved FLOPS 0.09 TFLOPS]: loss 1.305401
+[2025-08-07 11:50:31.686341] [train] [iter 369, tokens 6400, elapsed_time 172.24 ms, achieved FLOPS 0.60 TFLOPS]: loss 1.260144
+[2025-08-07 11:50:31.857909] [train] [iter 379, tokens 6400, elapsed_time 171.61 ms, achieved FLOPS 0.58 TFLOPS]: loss 1.226904
+[2025-08-07 11:50:32.031904] [train] [iter 389, tokens 6400, elapsed_time 173.98 ms, achieved FLOPS 0.59 TFLOPS]: loss 1.402430
+[2025-08-07 11:50:32.203930] [train] [iter 399, tokens 6400, elapsed_time 172.05 ms, achieved FLOPS 0.58 TFLOPS]: loss 1.204007
+[2025-08-07 11:50:32.910044] =========Traning time window 29============
+[2025-08-07 11:50:32.910114] Time window (in ms): [1649602012164, 1649605612164], users cnt: 1269, 
+[2025-08-07 11:50:32.910268] before batched, max_train_iters: 40, n: 10, actual_train_iter: 402
+[2025-08-07 11:50:33.067654] [train] [iter 409, tokens 5820, elapsed_time 863.66 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.283962
+[2025-08-07 11:50:33.276327] [train] [iter 419, tokens 6400, elapsed_time 208.68 ms, achieved FLOPS 0.48 TFLOPS]: loss 1.212031
+[2025-08-07 11:50:33.483685] [train] [iter 429, tokens 6400, elapsed_time 207.39 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.219637
+[2025-08-07 11:50:33.691176] [train] [iter 439, tokens 6400, elapsed_time 207.50 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.292294
+[2025-08-07 11:50:34.355439] =========Traning time window 30============
+[2025-08-07 11:50:34.355534] Time window (in ms): [1649605612164, 1649609212164], users cnt: 924, 
+[2025-08-07 11:50:34.355818] before batched, max_train_iters: 29, n: 10, actual_train_iter: 442
+[2025-08-07 11:50:34.526067] [train] [iter 449, tokens 6180, elapsed_time 834.73 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.218868
+[2025-08-07 11:50:34.752561] [train] [iter 459, tokens 6400, elapsed_time 226.59 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.233116
+[2025-08-07 11:50:34.976588] [train] [iter 469, tokens 6400, elapsed_time 224.09 ms, achieved FLOPS 0.45 TFLOPS]: loss 1.221923
+[2025-08-07 11:50:35.566226] =========Traning time window 31============
+[2025-08-07 11:50:35.566291] Time window (in ms): [1649609212164, 1649612812164], users cnt: 560, 
+[2025-08-07 11:50:35.566449] before batched, max_train_iters: 18, n: 10, actual_train_iter: 471
+[2025-08-07 11:50:35.765717] [train] [iter 479, tokens 6320, elapsed_time 789.10 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.215163
+[2025-08-07 11:50:35.991591] [train] [iter 489, tokens 6080, elapsed_time 225.89 ms, achieved FLOPS 0.42 TFLOPS]: loss 1.245759
+[2025-08-07 11:50:36.510002] =========Traning time window 32============
+[2025-08-07 11:50:36.510068] Time window (in ms): [1649612812164, 1649616412164], users cnt: 328, 
+[2025-08-07 11:50:36.510215] before batched, max_train_iters: 11, n: 10, actual_train_iter: 489
+[2025-08-07 11:50:36.751686] [train] [iter 499, tokens 6400, elapsed_time 760.05 ms, achieved FLOPS 0.14 TFLOPS]: loss 1.138106
+[2025-08-07 11:50:36.774290] [eval debug] actual_train_iter is 500
+[2025-08-07 11:50:36.800024] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.725490
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.705882
+    Metrics.task7.AUC:0.944444
+[2025-08-07 11:50:37.302185] =========Traning time window 33============
+[2025-08-07 11:50:37.302249] Time window (in ms): [1649616412164, 1649620012164], users cnt: 227, 
+[2025-08-07 11:50:37.302397] before batched, max_train_iters: 8, n: 10, actual_train_iter: 500
+[2025-08-07 11:50:38.004758] =========Traning time window 34============
+[2025-08-07 11:50:38.004824] Time window (in ms): [1649620012164, 1649623612164], users cnt: 187, 
+[2025-08-07 11:50:38.004973] before batched, max_train_iters: 6, n: 10, actual_train_iter: 508
+[2025-08-07 11:50:38.040320] [train] [iter 509, tokens 5340, elapsed_time 1288.62 ms, achieved FLOPS 0.07 TFLOPS]: loss 1.351273
+[2025-08-07 11:50:38.661409] =========Traning time window 35============
+[2025-08-07 11:50:38.661503] Time window (in ms): [1649623612164, 1649627212164], users cnt: 242, 
+[2025-08-07 11:50:38.661780] before batched, max_train_iters: 8, n: 10, actual_train_iter: 514
+[2025-08-07 11:50:38.799281] [train] [iter 519, tokens 6300, elapsed_time 758.88 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.278940
+[2025-08-07 11:50:39.413767] =========Traning time window 36============
+[2025-08-07 11:50:39.413847] Time window (in ms): [1649627212164, 1649630812164], users cnt: 567, 
+[2025-08-07 11:50:39.414046] before batched, max_train_iters: 18, n: 10, actual_train_iter: 522
+[2025-08-07 11:50:39.602308] [train] [iter 529, tokens 6120, elapsed_time 803.09 ms, achieved FLOPS 0.12 TFLOPS]: loss 1.263840
+[2025-08-07 11:50:39.850104] [train] [iter 539, tokens 6400, elapsed_time 247.87 ms, achieved FLOPS 0.41 TFLOPS]: loss 1.183761
+[2025-08-07 11:50:39.870789] [eval debug] actual_train_iter is 540
+[2025-08-07 11:50:39.895792] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.647059
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.647059
+    Metrics.task7.AUC:0.916667
+[2025-08-07 11:50:40.506655] =========Traning time window 37============
+[2025-08-07 11:50:40.506721] Time window (in ms): [1649630812164, 1649634412164], users cnt: 950, 
+[2025-08-07 11:50:40.506866] before batched, max_train_iters: 30, n: 10, actual_train_iter: 540
+[2025-08-07 11:50:40.741370] [train] [iter 549, tokens 6220, elapsed_time 891.21 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.280656
+[2025-08-07 11:50:40.762325] [eval debug] actual_train_iter is 550
+[2025-08-07 11:50:40.790817] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.705882
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.705882
+    Metrics.task7.AUC:0.847222
+[2025-08-07 11:50:41.019066] [train] [iter 559, tokens 6400, elapsed_time 277.77 ms, achieved FLOPS 0.37 TFLOPS]: loss 1.187760
+[2025-08-07 11:50:41.039673] [eval debug] actual_train_iter is 560
+[2025-08-07 11:50:41.063574] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.745098
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.725490
+    Metrics.task7.AUC:0.944444
+[2025-08-07 11:50:41.290457] [train] [iter 569, tokens 6400, elapsed_time 271.39 ms, achieved FLOPS 0.38 TFLOPS]: loss 1.237930
+[2025-08-07 11:50:41.310745] [eval debug] actual_train_iter is 570
+[2025-08-07 11:50:41.335390] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.705882
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.705882
+    Metrics.task7.AUC:0.888889
+[2025-08-07 11:50:41.984404] =========Traning time window 38============
+[2025-08-07 11:50:41.984471] Time window (in ms): [1649634412164, 1649638012164], users cnt: 1149, 
+[2025-08-07 11:50:41.984622] before batched, max_train_iters: 36, n: 10, actual_train_iter: 570
+[2025-08-07 11:50:42.219009] [train] [iter 579, tokens 6200, elapsed_time 928.50 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.294955
+[2025-08-07 11:50:42.240911] [eval debug] actual_train_iter is 580
+[2025-08-07 11:50:42.274384] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.686275
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.686275
+    Metrics.task7.AUC:0.888889
+[2025-08-07 11:50:42.510464] [train] [iter 589, tokens 6400, elapsed_time 291.46 ms, achieved FLOPS 0.40 TFLOPS]: loss 1.315564
+[2025-08-07 11:50:42.531230] [eval debug] actual_train_iter is 590
+[2025-08-07 11:50:42.556292] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.725490
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.666667
+    Metrics.task7.AUC:0.958333
+[2025-08-07 11:50:44.684280] [train] [iter 599, tokens 6400, elapsed_time 2173.68 ms, achieved FLOPS 0.05 TFLOPS]: loss 1.555904
+[2025-08-07 11:50:44.704833] [eval debug] actual_train_iter is 600
+[2025-08-07 11:50:44.729134] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.705882
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.666667
+    Metrics.task7.AUC:1.000000
+[2025-08-07 11:50:45.755551] =========Traning time window 39============
+[2025-08-07 11:50:45.755622] Time window (in ms): [1649638012164, 1649641612164], users cnt: 1265, 
+[2025-08-07 11:50:45.755771] before batched, max_train_iters: 40, n: 10, actual_train_iter: 606
+[2025-08-07 11:50:45.842449] [train] [iter 609, tokens 6340, elapsed_time 1158.32 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.100935
+[2025-08-07 11:50:46.094866] [train] [iter 619, tokens 6400, elapsed_time 252.43 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.192468
+[2025-08-07 11:50:46.344312] [train] [iter 629, tokens 6400, elapsed_time 249.49 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.271667
+[2025-08-07 11:50:46.595622] [train] [iter 639, tokens 6400, elapsed_time 251.30 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.419937
+[2025-08-07 11:50:47.470958] =========Traning time window 40============
+[2025-08-07 11:50:47.471034] Time window (in ms): [1649641612164, 1649645212164], users cnt: 1438, 
+[2025-08-07 11:50:47.471252] before batched, max_train_iters: 45, n: 10, actual_train_iter: 646
+[2025-08-07 11:50:47.559665] [train] [iter 649, tokens 6100, elapsed_time 963.90 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.179094
+[2025-08-07 11:50:47.808610] [train] [iter 659, tokens 6400, elapsed_time 249.08 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.359510
+[2025-08-07 11:50:48.077425] [train] [iter 669, tokens 6400, elapsed_time 268.68 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.387854
+[2025-08-07 11:50:48.358290] [train] [iter 679, tokens 6400, elapsed_time 280.94 ms, achieved FLOPS 0.42 TFLOPS]: loss 1.163259
+[2025-08-07 11:50:48.651384] [train] [iter 689, tokens 6400, elapsed_time 292.97 ms, achieved FLOPS 0.40 TFLOPS]: loss 1.239271
+[2025-08-07 11:50:49.419675] =========Traning time window 41============
+[2025-08-07 11:50:49.419745] Time window (in ms): [1649645212164, 1649648812164], users cnt: 1661, 
+[2025-08-07 11:50:49.419920] before batched, max_train_iters: 52, n: 10, actual_train_iter: 691
+[2025-08-07 11:50:49.631148] [train] [iter 699, tokens 6360, elapsed_time 979.92 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.282367
+[2025-08-07 11:50:49.880868] [train] [iter 709, tokens 6400, elapsed_time 249.75 ms, achieved FLOPS 0.45 TFLOPS]: loss 1.191094
+[2025-08-07 11:50:50.131867] [train] [iter 719, tokens 6400, elapsed_time 251.00 ms, achieved FLOPS 0.48 TFLOPS]: loss 1.232040
+[2025-08-07 11:50:50.383136] [train] [iter 729, tokens 6400, elapsed_time 251.28 ms, achieved FLOPS 0.48 TFLOPS]: loss 1.106592
+[2025-08-07 11:50:50.631644] [train] [iter 739, tokens 6400, elapsed_time 248.51 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.176809
+[2025-08-07 11:50:51.505726] =========Traning time window 42============
+[2025-08-07 11:50:51.505798] Time window (in ms): [1649648812164, 1649652412164], users cnt: 2072, 
+[2025-08-07 11:50:51.505957] before batched, max_train_iters: 65, n: 10, actual_train_iter: 743
+[2025-08-07 11:50:51.668239] [train] [iter 749, tokens 6340, elapsed_time 1036.49 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.147351
+[2025-08-07 11:50:51.917862] [train] [iter 759, tokens 6400, elapsed_time 249.71 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.261882
+[2025-08-07 11:50:52.167027] [train] [iter 769, tokens 6400, elapsed_time 249.19 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.387503
+[2025-08-07 11:50:52.417235] [train] [iter 779, tokens 6400, elapsed_time 250.18 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.191120
+[2025-08-07 11:50:52.678577] [train] [iter 789, tokens 6400, elapsed_time 261.20 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.382223
+[2025-08-07 11:50:52.972709] [train] [iter 799, tokens 6400, elapsed_time 294.06 ms, achieved FLOPS 0.42 TFLOPS]: loss 1.273428
+[2025-08-07 11:50:54.010812] =========Traning time window 43============
+[2025-08-07 11:50:54.010924] Time window (in ms): [1649652412164, 1649656012164], users cnt: 2111, 
+[2025-08-07 11:50:54.011238] before batched, max_train_iters: 66, n: 10, actual_train_iter: 808
+[2025-08-07 11:50:54.049786] [train] [iter 809, tokens 6240, elapsed_time 1077.21 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.233024
+[2025-08-07 11:50:54.310331] [train] [iter 819, tokens 6400, elapsed_time 260.52 ms, achieved FLOPS 0.45 TFLOPS]: loss 1.258553
+[2025-08-07 11:50:54.593569] [train] [iter 829, tokens 6400, elapsed_time 283.24 ms, achieved FLOPS 0.40 TFLOPS]: loss 1.198654
+[2025-08-07 11:50:54.874135] [train] [iter 839, tokens 6400, elapsed_time 280.59 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.264460
+[2025-08-07 11:50:55.154048] [train] [iter 849, tokens 6400, elapsed_time 279.91 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.178727
+[2025-08-07 11:50:55.435514] [train] [iter 859, tokens 6400, elapsed_time 281.48 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.097076
+[2025-08-07 11:50:55.721341] [train] [iter 869, tokens 6400, elapsed_time 285.79 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.122689
+[2025-08-07 11:50:56.822004] =========Traning time window 44============
+[2025-08-07 11:50:56.822078] Time window (in ms): [1649656012164, 1649659612164], users cnt: 1821, 
+[2025-08-07 11:50:56.822228] before batched, max_train_iters: 57, n: 10, actual_train_iter: 874
+[2025-08-07 11:50:56.960179] [train] [iter 879, tokens 6380, elapsed_time 1238.93 ms, achieved FLOPS 0.10 TFLOPS]: loss 1.206458
+[2025-08-07 11:50:57.213346] [train] [iter 889, tokens 6400, elapsed_time 253.15 ms, achieved FLOPS 0.52 TFLOPS]: loss 1.110166
+[2025-08-07 11:50:57.464322] [train] [iter 899, tokens 6400, elapsed_time 251.03 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.110701
+[2025-08-07 11:50:57.714143] [train] [iter 909, tokens 6400, elapsed_time 249.82 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.196849
+[2025-08-07 11:50:57.964791] [train] [iter 919, tokens 6400, elapsed_time 250.55 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.115174
+[2025-08-07 11:50:58.199544] [train] [iter 929, tokens 6400, elapsed_time 234.86 ms, achieved FLOPS 0.53 TFLOPS]: loss 1.290088
+[2025-08-07 11:50:58.978350] =========Traning time window 45============
+[2025-08-07 11:50:58.978455] Time window (in ms): [1649659612164, 1649663212164], users cnt: 1741, 
+[2025-08-07 11:50:58.978774] before batched, max_train_iters: 55, n: 10, actual_train_iter: 931
+[2025-08-07 11:50:59.196656] [train] [iter 939, tokens 6340, elapsed_time 996.98 ms, achieved FLOPS 0.12 TFLOPS]: loss 1.089211
+[2025-08-07 11:50:59.457879] [train] [iter 949, tokens 6400, elapsed_time 261.30 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.108856
+[2025-08-07 11:50:59.717309] [train] [iter 959, tokens 6400, elapsed_time 259.44 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.038688
+[2025-08-07 11:50:59.976548] [train] [iter 969, tokens 6400, elapsed_time 259.27 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.177713
+[2025-08-07 11:51:00.237797] [train] [iter 979, tokens 6400, elapsed_time 261.23 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.061191
+[2025-08-07 11:51:01.159853] =========Traning time window 46============
+[2025-08-07 11:51:01.159926] Time window (in ms): [1649663212164, 1649666812164], users cnt: 1884, 
+[2025-08-07 11:51:01.160087] before batched, max_train_iters: 59, n: 10, actual_train_iter: 986
+[2025-08-07 11:51:01.247621] [train] [iter 989, tokens 6020, elapsed_time 1009.80 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.120423
+[2025-08-07 11:51:01.502690] [train] [iter 999, tokens 6400, elapsed_time 255.09 ms, achieved FLOPS 0.53 TFLOPS]: loss 1.099285
+[2025-08-07 11:51:01.756579] [train] [iter 1009, tokens 6400, elapsed_time 253.91 ms, achieved FLOPS 0.53 TFLOPS]: loss 1.214182
+[2025-08-07 11:51:02.006607] [train] [iter 1019, tokens 6400, elapsed_time 250.05 ms, achieved FLOPS 0.54 TFLOPS]: loss 1.012074
+[2025-08-07 11:51:02.259010] [train] [iter 1029, tokens 6400, elapsed_time 252.37 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.246836
+[2025-08-07 11:51:02.512633] [train] [iter 1039, tokens 6400, elapsed_time 253.64 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.152786
+[2025-08-07 11:51:03.451791] =========Traning time window 47============
+[2025-08-07 11:51:03.451876] Time window (in ms): [1649666812164, 1649670412164], users cnt: 2204, 
+[2025-08-07 11:51:03.452089] before batched, max_train_iters: 69, n: 10, actual_train_iter: 1045
+[2025-08-07 11:51:03.565411] [train] [iter 1049, tokens 6320, elapsed_time 1052.62 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.000355
+[2025-08-07 11:51:03.835295] [train] [iter 1059, tokens 6400, elapsed_time 269.91 ms, achieved FLOPS 0.48 TFLOPS]: loss 0.993493
+[2025-08-07 11:51:04.122657] [train] [iter 1069, tokens 6400, elapsed_time 287.38 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.139251
+[2025-08-07 11:51:04.408007] [train] [iter 1079, tokens 6400, elapsed_time 285.33 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.077095
+[2025-08-07 11:51:04.688913] [train] [iter 1089, tokens 6400, elapsed_time 280.98 ms, achieved FLOPS 0.48 TFLOPS]: loss 1.236592
+[2025-08-07 11:51:04.970299] [train] [iter 1099, tokens 6400, elapsed_time 281.38 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.090578
+[2025-08-07 11:51:05.251022] [train] [iter 1109, tokens 6400, elapsed_time 280.73 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.203669
+[2025-08-07 11:51:06.202849] =========Traning time window 48============
+[2025-08-07 11:51:06.202921] Time window (in ms): [1649670412164, 1649674012164], users cnt: 2354, 
+[2025-08-07 11:51:06.203100] before batched, max_train_iters: 74, n: 10, actual_train_iter: 1114
+[2025-08-07 11:51:06.343333] [train] [iter 1119, tokens 6320, elapsed_time 1092.27 ms, achieved FLOPS 0.13 TFLOPS]: loss 1.180175
+[2025-08-07 11:51:06.610913] [train] [iter 1129, tokens 6400, elapsed_time 267.62 ms, achieved FLOPS 0.48 TFLOPS]: loss 1.150071
+[2025-08-07 11:51:06.880213] [train] [iter 1139, tokens 6400, elapsed_time 269.27 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.197448
+[2025-08-07 11:51:07.148843] [train] [iter 1149, tokens 6400, elapsed_time 268.68 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.165853
+[2025-08-07 11:51:07.415140] [train] [iter 1159, tokens 6400, elapsed_time 266.30 ms, achieved FLOPS 0.45 TFLOPS]: loss 1.042516
+[2025-08-07 11:51:07.684382] [train] [iter 1169, tokens 6400, elapsed_time 269.23 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.054499
+[2025-08-07 11:51:07.969197] [train] [iter 1179, tokens 6400, elapsed_time 284.71 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.170529
+[2025-08-07 11:51:09.066027] =========Traning time window 49============
+[2025-08-07 11:51:09.066134] Time window (in ms): [1649674012164, 1649677612164], users cnt: 2400, 
+[2025-08-07 11:51:09.066431] before batched, max_train_iters: 75, n: 10, actual_train_iter: 1188
+[2025-08-07 11:51:09.104985] [train] [iter 1189, tokens 6120, elapsed_time 1135.77 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.221959
+[2025-08-07 11:51:09.355336] [train] [iter 1199, tokens 6400, elapsed_time 250.50 ms, achieved FLOPS 0.54 TFLOPS]: loss 1.066213
+[2025-08-07 11:51:09.609889] [train] [iter 1209, tokens 6400, elapsed_time 254.52 ms, achieved FLOPS 0.56 TFLOPS]: loss 1.174394
+[2025-08-07 11:51:09.878348] [train] [iter 1219, tokens 6400, elapsed_time 268.41 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.103124
+[2025-08-07 11:51:10.178994] [train] [iter 1229, tokens 6400, elapsed_time 300.51 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.004932
+[2025-08-07 11:51:10.494259] [train] [iter 1239, tokens 6400, elapsed_time 315.31 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.106417
+[2025-08-07 11:51:10.794917] [train] [iter 1249, tokens 6400, elapsed_time 300.67 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.064643
+[2025-08-07 11:51:11.095283] [train] [iter 1259, tokens 6400, elapsed_time 300.41 ms, achieved FLOPS 0.46 TFLOPS]: loss 0.955592
+[2025-08-07 11:51:12.291074] =========Traning time window 50============
+[2025-08-07 11:51:12.291151] Time window (in ms): [1649677612164, 1649681212164], users cnt: 2711, 
+[2025-08-07 11:51:12.291312] before batched, max_train_iters: 85, n: 10, actual_train_iter: 1263
+[2025-08-07 11:51:12.455528] [train] [iter 1269, tokens 6400, elapsed_time 1360.34 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.073971
+[2025-08-07 11:51:12.737737] [train] [iter 1279, tokens 6400, elapsed_time 282.10 ms, achieved FLOPS 0.47 TFLOPS]: loss 1.163150
+[2025-08-07 11:51:13.020238] [train] [iter 1289, tokens 6400, elapsed_time 282.57 ms, achieved FLOPS 0.49 TFLOPS]: loss 0.974136
+[2025-08-07 11:51:13.301638] [train] [iter 1299, tokens 6400, elapsed_time 281.38 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.047318
+[2025-08-07 11:51:13.593179] [train] [iter 1309, tokens 6400, elapsed_time 291.42 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.032100
+[2025-08-07 11:51:13.875242] [train] [iter 1319, tokens 6400, elapsed_time 282.20 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.174413
+[2025-08-07 11:51:14.167572] [train] [iter 1329, tokens 6400, elapsed_time 292.22 ms, achieved FLOPS 0.47 TFLOPS]: loss 0.879875
+[2025-08-07 11:51:14.494741] [train] [iter 1339, tokens 6400, elapsed_time 326.98 ms, achieved FLOPS 0.42 TFLOPS]: loss 1.169202
+[2025-08-07 11:51:16.109923] =========Traning time window 51============
+[2025-08-07 11:51:16.110073] Time window (in ms): [1649681212164, 1649684812164], users cnt: 3051, 
+[2025-08-07 11:51:16.110488] before batched, max_train_iters: 96, n: 10, actual_train_iter: 1348
+[2025-08-07 11:51:16.166442] [train] [iter 1349, tokens 6220, elapsed_time 1671.58 ms, achieved FLOPS 0.08 TFLOPS]: loss 1.123343
+[2025-08-07 11:51:16.506632] [train] [iter 1359, tokens 6400, elapsed_time 340.34 ms, achieved FLOPS 0.43 TFLOPS]: loss 1.107253
+[2025-08-07 11:51:16.849685] [train] [iter 1369, tokens 6400, elapsed_time 342.99 ms, achieved FLOPS 0.45 TFLOPS]: loss 1.137299
+[2025-08-07 11:51:17.189738] [train] [iter 1379, tokens 6400, elapsed_time 340.07 ms, achieved FLOPS 0.42 TFLOPS]: loss 1.085419
+[2025-08-07 11:51:17.530425] [train] [iter 1389, tokens 6400, elapsed_time 340.67 ms, achieved FLOPS 0.41 TFLOPS]: loss 1.204575
+[2025-08-07 11:51:17.859289] [train] [iter 1399, tokens 6400, elapsed_time 329.08 ms, achieved FLOPS 0.41 TFLOPS]: loss 1.017616
+[2025-08-07 11:51:18.160273] [train] [iter 1409, tokens 6400, elapsed_time 301.05 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.133089
+[2025-08-07 11:51:18.446813] [train] [iter 1419, tokens 6400, elapsed_time 286.57 ms, achieved FLOPS 0.50 TFLOPS]: loss 1.204392
+[2025-08-07 11:51:18.727018] [train] [iter 1429, tokens 6400, elapsed_time 280.23 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.144394
+[2025-08-07 11:51:19.008463] [train] [iter 1439, tokens 6400, elapsed_time 281.34 ms, achieved FLOPS 0.44 TFLOPS]: loss 1.085473
+[2025-08-07 11:51:20.043180] =========Traning time window 52============
+[2025-08-07 11:51:20.043296] Time window (in ms): [1649684812164, 1649688412164], users cnt: 2888, 
+[2025-08-07 11:51:20.043624] before batched, max_train_iters: 91, n: 10, actual_train_iter: 1444
+[2025-08-07 11:51:20.185513] [train] [iter 1449, tokens 5980, elapsed_time 1177.13 ms, achieved FLOPS 0.12 TFLOPS]: loss 0.961129
+[2025-08-07 11:51:20.446980] [train] [iter 1459, tokens 6400, elapsed_time 261.45 ms, achieved FLOPS 0.51 TFLOPS]: loss 1.126158
+[2025-08-07 11:51:20.730538] [train] [iter 1469, tokens 6400, elapsed_time 283.59 ms, achieved FLOPS 0.49 TFLOPS]: loss 1.098975
+[2025-08-07 11:51:21.014366] [train] [iter 1479, tokens 6400, elapsed_time 283.81 ms, achieved FLOPS 0.50 TFLOPS]: loss 0.973466
+[2025-08-07 11:51:21.295474] [train] [iter 1489, tokens 6400, elapsed_time 281.09 ms, achieved FLOPS 0.52 TFLOPS]: loss 1.086692
+[2025-08-07 11:51:21.510346] [train] [iter 1499, tokens 6400, elapsed_time 214.94 ms, achieved FLOPS 0.65 TFLOPS]: loss 1.028321
+[2025-08-07 11:51:21.687347] [train] [iter 1509, tokens 6400, elapsed_time 177.04 ms, achieved FLOPS 0.86 TFLOPS]: loss 1.136087
+[2025-08-07 11:51:21.882245] [train] [iter 1519, tokens 6400, elapsed_time 194.91 ms, achieved FLOPS 0.72 TFLOPS]: loss 1.015822
+[2025-08-07 11:51:22.099755] [train] [iter 1529, tokens 6400, elapsed_time 217.49 ms, achieved FLOPS 0.70 TFLOPS]: loss 1.121131
+[2025-08-07 11:51:23.247506] =========Traning time window 53============
+[2025-08-07 11:51:23.247580] Time window (in ms): [1649688412164, 1649692012164], users cnt: 2245, 
+[2025-08-07 11:51:23.247745] before batched, max_train_iters: 71, n: 10, actual_train_iter: 1535
+[2025-08-07 11:51:23.351872] [train] [iter 1539, tokens 5920, elapsed_time 1252.09 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.134325
+[2025-08-07 11:51:23.595730] [train] [iter 1549, tokens 6400, elapsed_time 243.84 ms, achieved FLOPS 0.64 TFLOPS]: loss 1.098444
+[2025-08-07 11:51:23.861527] [train] [iter 1559, tokens 6400, elapsed_time 265.66 ms, achieved FLOPS 0.56 TFLOPS]: loss 1.005463
+[2025-08-07 11:51:24.121114] [train] [iter 1569, tokens 6400, elapsed_time 259.71 ms, achieved FLOPS 0.58 TFLOPS]: loss 1.003233
+[2025-08-07 11:51:24.399893] [train] [iter 1579, tokens 6400, elapsed_time 278.74 ms, achieved FLOPS 0.52 TFLOPS]: loss 1.088935
+[2025-08-07 11:51:24.688294] [train] [iter 1589, tokens 6400, elapsed_time 288.43 ms, achieved FLOPS 0.56 TFLOPS]: loss 1.242427
+[2025-08-07 11:51:24.911371] [train] [iter 1599, tokens 6400, elapsed_time 223.16 ms, achieved FLOPS 0.72 TFLOPS]: loss 1.010963
+[2025-08-07 11:51:25.717275] =========Traning time window 54============
+[2025-08-07 11:51:25.717351] Time window (in ms): [1649692012164, 1649695612164], users cnt: 1451, 
+[2025-08-07 11:51:25.717556] before batched, max_train_iters: 46, n: 10, actual_train_iter: 1606
+[2025-08-07 11:51:25.794090] [train] [iter 1609, tokens 5860, elapsed_time 882.66 ms, achieved FLOPS 0.16 TFLOPS]: loss 1.023274
+[2025-08-07 11:51:26.013162] [train] [iter 1619, tokens 6400, elapsed_time 219.14 ms, achieved FLOPS 0.70 TFLOPS]: loss 1.067848
+[2025-08-07 11:51:26.251606] [train] [iter 1629, tokens 6400, elapsed_time 238.46 ms, achieved FLOPS 0.65 TFLOPS]: loss 1.108151
+[2025-08-07 11:51:26.490183] [train] [iter 1639, tokens 6400, elapsed_time 238.57 ms, achieved FLOPS 0.64 TFLOPS]: loss 1.116976
+[2025-08-07 11:51:26.728697] [train] [iter 1649, tokens 6400, elapsed_time 238.52 ms, achieved FLOPS 0.63 TFLOPS]: loss 1.066617
+[2025-08-07 11:51:27.390770] =========Traning time window 55============
+[2025-08-07 11:51:27.390836] Time window (in ms): [1649695612164, 1649699212164], users cnt: 838, 
+[2025-08-07 11:51:27.390990] before batched, max_train_iters: 27, n: 10, actual_train_iter: 1652
+[2025-08-07 11:51:27.573464] [train] [iter 1659, tokens 5980, elapsed_time 844.60 ms, achieved FLOPS 0.18 TFLOPS]: loss 1.037606
+[2025-08-07 11:51:27.839360] [train] [iter 1669, tokens 6400, elapsed_time 265.91 ms, achieved FLOPS 0.60 TFLOPS]: loss 1.125648
+[2025-08-07 11:51:28.090813] [train] [iter 1679, tokens 5880, elapsed_time 251.52 ms, achieved FLOPS 0.53 TFLOPS]: loss 1.088168
+[2025-08-07 11:51:28.656356] =========Traning time window 56============
+[2025-08-07 11:51:28.656421] Time window (in ms): [1649699212164, 1649702812164], users cnt: 545, 
+[2025-08-07 11:51:28.656575] before batched, max_train_iters: 18, n: 10, actual_train_iter: 1679
+[2025-08-07 11:51:28.913143] [train] [iter 1689, tokens 6400, elapsed_time 822.25 ms, achieved FLOPS 0.18 TFLOPS]: loss 1.040492
+[2025-08-07 11:51:29.635534] =========Traning time window 57============
+[2025-08-07 11:51:29.635634] Time window (in ms): [1649702812164, 1649706412164], users cnt: 367, 
+[2025-08-07 11:51:29.635928] before batched, max_train_iters: 12, n: 10, actual_train_iter: 1697
+[2025-08-07 11:51:29.700724] [train] [iter 1699, tokens 5780, elapsed_time 787.64 ms, achieved FLOPS 0.19 TFLOPS]: loss 0.940756
+[2025-08-07 11:51:29.944558] [train] [iter 1709, tokens 6060, elapsed_time 243.92 ms, achieved FLOPS 0.64 TFLOPS]: loss 1.012219
+[2025-08-07 11:51:30.450964] =========Traning time window 58============
+[2025-08-07 11:51:30.451028] Time window (in ms): [1649706412164, 1649710012164], users cnt: 283, 
+[2025-08-07 11:51:30.451178] before batched, max_train_iters: 9, n: 10, actual_train_iter: 1709
+[2025-08-07 11:51:31.209557] =========Traning time window 59============
+[2025-08-07 11:51:31.209623] Time window (in ms): [1649710012164, 1649713612164], users cnt: 370, 
+[2025-08-07 11:51:31.209773] before batched, max_train_iters: 12, n: 10, actual_train_iter: 1718
+[2025-08-07 11:51:31.246109] [train] [iter 1719, tokens 6300, elapsed_time 1301.52 ms, achieved FLOPS 0.12 TFLOPS]: loss 0.975385
+[2025-08-07 11:51:31.496871] [train] [iter 1729, tokens 6400, elapsed_time 250.76 ms, achieved FLOPS 0.57 TFLOPS]: loss 1.116164
+[2025-08-07 11:51:31.517580] [eval debug] actual_train_iter is 1730
+[2025-08-07 11:51:31.542215] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.843137
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.882353
+    Metrics.task7.AUC:0.861111
+[2025-08-07 11:51:32.119688] =========Traning time window 60============
+[2025-08-07 11:51:32.119752] Time window (in ms): [1649713612164, 1649717212164], users cnt: 745, 
+[2025-08-07 11:51:32.119901] before batched, max_train_iters: 24, n: 10, actual_train_iter: 1730
+[2025-08-07 11:51:32.357282] [train] [iter 1739, tokens 6120, elapsed_time 860.38 ms, achieved FLOPS 0.17 TFLOPS]: loss 1.051058
+[2025-08-07 11:51:32.377852] [eval debug] actual_train_iter is 1740
+[2025-08-07 11:51:32.402310] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.823529
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.862745
+    Metrics.task7.AUC:0.861111
+[2025-08-07 11:51:32.649692] [train] [iter 1749, tokens 6400, elapsed_time 292.38 ms, achieved FLOPS 0.46 TFLOPS]: loss 1.109521
+[2025-08-07 11:51:32.671810] [eval debug] actual_train_iter is 1750
+[2025-08-07 11:51:32.698528] [eval] [eval 32 users]:
+    Metrics.task0.AUC:0.745098
+    Metrics.task1.AUC:0.000000
+    Metrics.task2.AUC:0.000000
+    Metrics.task3.AUC:0.000000
+    Metrics.task4.AUC:0.000000
+    Metrics.task5.AUC:0.000000
+    Metrics.task6.AUC:0.803922
+    Metrics.task7.AUC:0.833333
+[2025-08-07 11:51:33.468790] =========Traning time window 61============
+[2025-08-07 11:51:33.468868] Time window (in ms): [1649717212164, 1649720812164], users cnt: 1293, 
+[2025-08-07 11:51:33.469084] before batched, max_train_iters: 41, n: 10, actual_train_iter: 1754
+[2025-08-07 11:51:33.608604] [train] [iter 1759, tokens 5940, elapsed_time 958.88 ms, achieved FLOPS 0.15 TFLOPS]: loss 1.077533
+[2025-08-07 11:51:33.863602] [train] [iter 1769, tokens 6400, elapsed_time 255.09 ms, achieved FLOPS 0.63 TFLOPS]: loss 0.943843
+[2025-08-07 11:51:34.115127] [train] [iter 1779, tokens 6400, elapsed_time 251.55 ms, achieved FLOPS 0.54 TFLOPS]: loss 1.033546
+[2025-08-07 11:51:34.367196] [train] [iter 1789, tokens 6400, elapsed_time 252.09 ms, achieved FLOPS 0.62 TFLOPS]: loss 1.088135
+[2025-08-07 11:51:35.212848] =========Traning time window 62============
+[2025-08-07 11:51:35.212924] Time window (in ms): [1649720812164, 1649724412164], users cnt: 1499, 
+[2025-08-07 11:51:35.213103] before batched, max_train_iters: 47, n: 10, actual_train_iter: 1795
+[2025-08-07 11:51:35.326879] [train] [iter 1799, tokens 6020, elapsed_time 959.60 ms, achieved FLOPS 0.15 TFLOPS]: loss 1.158921
+[2025-08-07 11:51:35.580080] [train] [iter 1809, tokens 6400, elapsed_time 253.27 ms, achieved FLOPS 0.65 TFLOPS]: loss 1.048286
+[2025-08-07 11:51:35.832523] [train] [iter 1819, tokens 6400, elapsed_time 252.45 ms, achieved FLOPS 0.63 TFLOPS]: loss 0.991122
+[2025-08-07 11:51:36.087698] [train] [iter 1829, tokens 6400, elapsed_time 255.18 ms, achieved FLOPS 0.72 TFLOPS]: loss 1.084245
+[2025-08-07 11:51:36.339821] [train] [iter 1839, tokens 6400, elapsed_time 252.12 ms, achieved FLOPS 0.60 TFLOPS]: loss 0.973058
+[2025-08-07 11:51:37.114960] =========Traning time window 63============
+[2025-08-07 11:51:37.115028] Time window (in ms): [1649724412164, 1649728012164], users cnt: 1578, 
+[2025-08-07 11:51:37.115188] before batched, max_train_iters: 50, n: 10, actual_train_iter: 1842
+[2025-08-07 11:51:37.306531] [train] [iter 1849, tokens 6300, elapsed_time 966.59 ms, achieved FLOPS 0.16 TFLOPS]: loss 1.063464
+[2025-08-07 11:51:37.598012] [train] [iter 1859, tokens 6400, elapsed_time 291.43 ms, achieved FLOPS 0.64 TFLOPS]: loss 1.020614
+[2025-08-07 11:51:37.889242] [train] [iter 1869, tokens 6400, elapsed_time 291.24 ms, achieved FLOPS 0.57 TFLOPS]: loss 0.987847
+[2025-08-07 11:51:38.182542] [train] [iter 1879, tokens 6400, elapsed_time 293.21 ms, achieved FLOPS 0.56 TFLOPS]: loss 1.074957
+[2025-08-07 11:51:38.485345] [train] [iter 1889, tokens 6400, elapsed_time 302.88 ms, achieved FLOPS 0.53 TFLOPS]: loss 1.056814
+[2025-08-07 11:51:39.299229] =========Traning time window 64============
+[2025-08-07 11:51:39.299347] Time window (in ms): [1649728012164, 1649731612164], users cnt: 1686, 
+[2025-08-07 11:51:39.299692] before batched, max_train_iters: 53, n: 10, actual_train_iter: 1892
+[2025-08-07 11:51:41.376588] [train] [iter 1899, tokens 5960, elapsed_time 2891.08 ms, achieved FLOPS 0.06 TFLOPS]: loss 0.868998
+[2025-08-07 11:51:41.565192] [train] [iter 1909, tokens 6400, elapsed_time 188.88 ms, achieved FLOPS 0.89 TFLOPS]: loss 1.028880
+[2025-08-07 11:51:41.740750] [train] [iter 1919, tokens 6400, elapsed_time 175.57 ms, achieved FLOPS 0.94 TFLOPS]: loss 1.054290
+[2025-08-07 11:51:41.915988] [train] [iter 1929, tokens 6400, elapsed_time 175.27 ms, achieved FLOPS 0.95 TFLOPS]: loss 1.043209
+[2025-08-07 11:51:42.089267] [train] [iter 1939, tokens 6400, elapsed_time 173.28 ms, achieved FLOPS 0.94 TFLOPS]: loss 1.057068
+[2025-08-07 11:51:43.159267] =========Traning time window 65============
+[2025-08-07 11:51:43.159349] Time window (in ms): [1649731612164, 1649735212164], users cnt: 1843, 
+[2025-08-07 11:51:43.159537] before batched, max_train_iters: 58, n: 10, actual_train_iter: 1945
+[2025-08-07 11:51:43.260318] [train] [iter 1949, tokens 6200, elapsed_time 1170.98 ms, achieved FLOPS 0.13 TFLOPS]: loss 0.995475
+[2025-08-07 11:51:43.472282] [train] [iter 1959, tokens 6400, elapsed_time 212.05 ms, achieved FLOPS 0.81 TFLOPS]: loss 0.995058
+[2025-08-07 11:51:43.685931] [train] [iter 1969, tokens 6400, elapsed_time 213.64 ms, achieved FLOPS 0.73 TFLOPS]: loss 1.020677
+[2025-08-07 11:51:43.898613] [train] [iter 1979, tokens 6400, elapsed_time 212.69 ms, achieved FLOPS 0.77 TFLOPS]: loss 1.034386
+[2025-08-07 11:51:44.111310] [train] [iter 1989, tokens 6400, elapsed_time 212.71 ms, achieved FLOPS 0.79 TFLOPS]: loss 0.963651
+[2025-08-07 11:51:44.324866] [train] [iter 1999, tokens 6400, elapsed_time 213.55 ms, achieved FLOPS 0.84 TFLOPS]: loss 1.036256
+[2025-08-07 11:51:45.236508] =========Traning time window 66============
+[2025-08-07 11:51:45.236580] Time window (in ms): [1649735212164, 1649738812164], users cnt: 2374, 
+[2025-08-07 11:51:45.236746] before batched, max_train_iters: 75, n: 10, actual_train_iter: 2003
+[2025-08-07 11:51:45.392823] [train] [iter 2009, tokens 6140, elapsed_time 1067.90 ms, achieved FLOPS 0.14 TFLOPS]: loss 1.169668
+[2025-08-07 11:51:45.633452] [train] [iter 2019, tokens 6400, elapsed_time 240.66 ms, achieved FLOPS 0.71 TFLOPS]: loss 0.919820
+[2025-08-07 11:51:45.876103] [train] [iter 2029, tokens 6400, elapsed_time 242.65 ms, achieved FLOPS 0.62 TFLOPS]: loss 1.012754
+[2025-08-07 11:51:46.118938] [train] [iter 2039, tokens 6400, elapsed_time 242.83 ms, achieved FLOPS 0.68 TFLOPS]: loss 1.131914
+[2025-08-07 11:51:46.358829] [train] [iter 2049, tokens 6400, elapsed_time 239.92 ms, achieved FLOPS 0.68 TFLOPS]: loss 0.992481
+[2025-08-07 11:51:46.597657] [train] [iter 2059, tokens 6400, elapsed_time 238.84 ms, achieved FLOPS 0.66 TFLOPS]: loss 1.078158
+[2025-08-07 11:51:46.847453] [train] [iter 2069, tokens 6400, elapsed_time 249.70 ms, achieved FLOPS 0.66 TFLOPS]: loss 1.054851
+[2025-08-07 11:51:47.894843] =========Traning time window 67============
+[2025-08-07 11:51:47.894943] Time window (in ms): [1649738812164, 1649742412164], users cnt: 2208, 
+[2025-08-07 11:51:47.895235] before batched, max_train_iters: 69, n: 10, actual_train_iter: 2078
+[2025-08-07 11:51:47.935222] [train] [iter 2079, tokens 5880, elapsed_time 1087.70 ms, achieved FLOPS 0.13 TFLOPS]: loss 0.980086
+[2025-08-07 11:51:48.188649] [train] [iter 2089, tokens 6400, elapsed_time 253.59 ms, achieved FLOPS 0.62 TFLOPS]: loss 0.865559
+[2025-08-07 11:51:48.454282] [train] [iter 2099, tokens 6400, elapsed_time 265.45 ms, achieved FLOPS 0.64 TFLOPS]: loss 1.017369
+[2025-08-07 11:51:48.755557] [train] [iter 2109, tokens 6400, elapsed_time 301.32 ms, achieved FLOPS 0.57 TFLOPS]: loss 0.969681
+[2025-08-07 11:51:49.043342] [train] [iter 2119, tokens 6400, elapsed_time 287.77 ms, achieved FLOPS 0.55 TFLOPS]: loss 0.978449
+[2025-08-07 11:51:49.328918] [train] [iter 2129, tokens 6400, elapsed_time 285.63 ms, achieved FLOPS 0.59 TFLOPS]: loss 1.005657
+[2025-08-07 11:51:49.618448] [train] [iter 2139, tokens 6400, elapsed_time 289.51 ms, achieved FLOPS 0.60 TFLOPS]: loss 1.128313
+[2025-08-07 11:51:50.590266] =========Traning time window 68============
+[2025-08-07 11:51:50.590338] Time window (in ms): [1649742412164, 1649746012164], users cnt: 1826, 
+[2025-08-07 11:51:50.590504] before batched, max_train_iters: 58, n: 10, actual_train_iter: 2147
+[2025-08-07 11:51:50.654066] [train] [iter 2149, tokens 6400, elapsed_time 1035.69 ms, achieved FLOPS 0.15 TFLOPS]: loss 0.963763
+[2025-08-07 11:51:50.909831] [train] [iter 2159, tokens 6400, elapsed_time 255.79 ms, achieved FLOPS 0.72 TFLOPS]: loss 0.991282
+[2025-08-07 11:51:51.195166] [train] [iter 2169, tokens 6400, elapsed_time 285.22 ms, achieved FLOPS 0.61 TFLOPS]: loss 0.931413
+[2025-08-07 11:51:51.486154] [train] [iter 2179, tokens 6400, elapsed_time 290.99 ms, achieved FLOPS 0.59 TFLOPS]: loss 0.984173
+[2025-08-07 11:51:51.788258] [train] [iter 2189, tokens 6400, elapsed_time 302.05 ms, achieved FLOPS 0.65 TFLOPS]: loss 0.961271
+[2025-08-07 11:51:52.082298] [train] [iter 2199, tokens 6400, elapsed_time 294.10 ms, achieved FLOPS 0.56 TFLOPS]: loss 0.909872
+[2025-08-07 11:51:52.988385] =========Traning time window 69============
+[2025-08-07 11:51:52.988464] Time window (in ms): [1649746012164, 1649749612164], users cnt: 1685, 
+[2025-08-07 11:51:52.988683] before batched, max_train_iters: 53, n: 10, actual_train_iter: 2205
+[2025-08-07 11:51:53.105097] [train] [iter 2209, tokens 5800, elapsed_time 1022.77 ms, achieved FLOPS 0.14 TFLOPS]: loss 0.936484
+[2025-08-07 11:51:53.378200] [train] [iter 2219, tokens 6400, elapsed_time 273.14 ms, achieved FLOPS 0.70 TFLOPS]: loss 0.959246
+[2025-08-07 11:51:53.662173] [train] [iter 2229, tokens 6400, elapsed_time 283.99 ms, achieved FLOPS 0.57 TFLOPS]: loss 1.055159
+[2025-08-07 11:51:53.962113] [train] [iter 2239, tokens 6400, elapsed_time 299.83 ms, achieved FLOPS 0.58 TFLOPS]: loss 0.919277
+[2025-08-07 11:51:54.254397] [train] [iter 2249, tokens 6400, elapsed_time 292.40 ms, achieved FLOPS 0.66 TFLOPS]: loss 0.974090
+[2025-08-07 11:51:55.251119] =========Traning time window 70============
+[2025-08-07 11:51:55.251190] Time window (in ms): [1649749612164, 1649753212164], users cnt: 1839, 
+[2025-08-07 11:51:55.251365] before batched, max_train_iters: 58, n: 10, actual_train_iter: 2258
+[2025-08-07 11:51:55.289260] [train] [iter 2259, tokens 6180, elapsed_time 1034.88 ms, achieved FLOPS 0.17 TFLOPS]: loss 0.916490
+[2025-08-07 11:51:55.545306] [train] [iter 2269, tokens 6400, elapsed_time 256.09 ms, achieved FLOPS 0.79 TFLOPS]: loss 0.859677
+[2025-08-07 11:51:55.799389] [train] [iter 2279, tokens 6400, elapsed_time 254.11 ms, achieved FLOPS 0.66 TFLOPS]: loss 0.846588
+[2025-08-07 11:51:56.066564] [train] [iter 2289, tokens 6400, elapsed_time 267.06 ms, achieved FLOPS 0.64 TFLOPS]: loss 0.948129
+W0807 11:51:56.097000 11340 torch/distributed/elastic/agent/server/api.py:719] Received 2 death signal, shutting down workers
+W0807 11:51:56.104000 11340 torch/distributed/elastic/multiprocessing/api.py:897] Sending process 11533 closing signal SIGINT
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/pretrain_gr_ranking.py", line 199, in <module>
+[rank0]:     main()
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/pretrain_gr_ranking.py", line 186, in main
+[rank0]:     train_with_pipeline(
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/training/training.py", line 266, in train_with_pipeline
+[rank0]:     ) = pipeline.progress(batched_iterator)
+[rank0]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/pipeline/train_pipeline.py", line 800, in progress
+[rank0]:     losses, output = self._model_fwd(self.batches[0])
+[rank0]:                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torchrec/distributed/model_parallel.py", line 309, in forward
+[rank0]:     return self._dmp_wrapped_module(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/deps/megatron-lm/megatron/core/distributed/data_parallel_base.py", line 22, in forward
+[rank0]:     return self.module(*inputs, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/deps/megatron-lm/megatron/core/transformer/module.py", line 178, in forward
+[rank0]:     outputs = self.module(*inputs, **kwargs)
+[rank0]:               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/model/ranking_gr.py", line 150, in forward
+[rank0]:     jagged_item_logit, labels = self.get_logit_and_labels(batch)
+[rank0]:                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/model/ranking_gr.py", line 127, in get_logit_and_labels
+[rank0]:     hidden_states_jagged = self._hstu_block(
+[rank0]:                            ^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/commons/utils/nvtx_op.py", line 174, in wrapper
+[rank0]:     output = module_or_func(*args, **kwargs)
+[rank0]:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/modules/hstu_block.py", line 69, in forward
+[rank0]:     jd = hstu_layer(jd)
+[rank0]:          ^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/commons/utils/nvtx_op.py", line 174, in wrapper
+[rank0]:     output = module_or_func(*args, **kwargs)
+[rank0]:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/modules/fused_hstu_layer.py", line 126, in forward
+[rank0]:     output = fused_hstu_op(
+[rank0]:              ^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/ops/fused_hstu_op.py", line 940, in fused_hstu_op
+[rank0]:     out = FusedHSTULayerFunction.apply(
+[rank0]:           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/autograd/function.py", line 575, in apply
+[rank0]:     return super().apply(*args, **kwargs)  # type: ignore[misc]
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/ops/fused_hstu_op.py", line 140, in forward
+[rank0]:     saved_tensor_map = OrderedDict()
+[rank0]:                        ^^^^^^^^^^^^^
+[rank0]: KeyboardInterrupt
+[rank0]:[W807 11:51:56.343660226 ProcessGroupNCCL.cpp:1294] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 33, in <module>
+    sys.exit(load_entry_point('torch==2.6.0a0+df5bbc09d1.nv24.11', 'console_scripts', 'torchrun')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/run.py", line 919, in main
+    run(args)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/run.py", line 910, in run
+    elastic_launch(
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 260, in launch_agent
+    result = agent.run()
+             ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/metrics/api.py", line 137, in wrapper
+    result = f(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 11340 got signal: 2
