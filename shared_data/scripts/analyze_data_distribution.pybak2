@@ -1,0 +1,262 @@
+import pandas as pd
+import numpy as np
+import argparse
+import matplotlib.pyplot as plt
+from datetime import datetime
+import json
+import os
+from collections import defaultdict
+import matplotlib as mpl
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description='User Interaction Data Analysis and Visualization',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    
+    parser.add_argument('input_file', help='Path to input CSV file')
+    parser.add_argument('--delta_t', type=int, default=60000,
+                      help='Time window size in milliseconds')
+    parser.add_argument('--output_dir', default='./results',
+                      help='Output directory path')
+    parser.add_argument('--output_prefix', default='interaction_stats',
+                      help='Prefix for output filenames')
+    parser.add_argument('--time_col', default='time_ms',
+                      help='Timestamp column name')
+    parser.add_argument('--user_col', default='user_id',
+                      help='User ID column name')
+    parser.add_argument('--plot', action='store_true',
+                      help='Generate visualization plots')
+    
+    return parser.parse_args()
+
+def calculate_metrics(df, user_col):
+    """Calculate key metrics"""
+    metrics = {
+        'total_interactions': len(df),
+        'unique_users': df[user_col].nunique(),
+        'avg_interactions_per_user': len(df) / df[user_col].nunique(),
+        'interaction_counts': df[user_col].value_counts().to_dict()
+    }
+    return metrics
+
+def analyze_data(df, delta_t_ms, time_col, user_col):
+    """Analyze data with progress display"""
+    print("\n🔍 Starting data analysis...")
+    
+    # Data preprocessing
+    print("⏳ Preprocessing data (time conversion, sorting)...", end=' ', flush=True)
+    df['timestamp'] = pd.to_datetime(df[time_col], unit='ms')
+    df = df.sort_values('timestamp')
+    min_time = df['timestamp'].min()
+    df['time_since_start'] = (df['timestamp'] - min_time).dt.total_seconds() * 1000
+    total_records = len(df)
+    print(f"Done! Total {total_records:,} records")
+    
+    # Initialize time windows
+    max_time = df['time_since_start'].max()
+    time_windows = np.arange(0, max_time + delta_t_ms, delta_t_ms)
+    total_windows = len(time_windows)
+    print(f"⏰ Will analyze {total_windows} time windows ({delta_t_ms/1000:.1f}s each)")
+    
+    window_stats = []
+    cumulative_stats = []
+    prev_users = 0
+    
+    # Progress display configuration
+    progress_interval = max(1, total_windows // 10)  # Show progress at least 10 times
+    
+    print("\n📊 Analysis progress:")
+    for i, window_end in enumerate(time_windows):
+        # Window statistics
+        window_mask = ((df['time_since_start'] > (window_end - delta_t_ms)) & 
+                      (df['time_since_start'] <= window_end))
+        window_data = df[window_mask]
+        
+        # Cumulative statistics
+        cumulative_data = df[df['time_since_start'] <= window_end]
+        
+        # Calculate metrics
+        window_metrics = calculate_metrics(window_data, user_col)
+        cumulative_metrics = calculate_metrics(cumulative_data, user_col)
+        
+        # Record results
+        window_stats.append({'window_end': window_end, **window_metrics})
+        cumulative_stats.append({'time_point': window_end, **cumulative_metrics})
+        
+        # Progress display
+        if (i % progress_interval == 0) or (i == total_windows - 1):
+            new_users = cumulative_metrics['unique_users'] - prev_users
+            progress = (i + 1) / total_windows * 100
+            time_elapsed = window_end / 1000
+            print(
+                f"▏{progress:.0f}% ▏Time: {time_elapsed:.1f}s ▏"
+                f"Window interactions: {window_metrics['total_interactions']:4d} ▏"
+                f"New users: {new_users:3d} ▏"
+                f"Total users: {cumulative_metrics['unique_users']:5d}"
+            )
+            prev_users = cumulative_metrics['unique_users']
+    
+    # Final statistics
+    print("\n✅ Analysis completed!")
+    final_stats = cumulative_stats[-1]
+    print(f"• Total time span: {max_time/1000:.1f} seconds")
+    print(f"• Total users: {final_stats['unique_users']:,}")
+    print(f"• Total interactions: {final_stats['total_interactions']:,}")
+    print(f"• Avg interactions/user: {final_stats['avg_interactions_per_user']:.1f}")
+    
+    return pd.DataFrame(window_stats), pd.DataFrame(cumulative_stats)
+
+def visualize_results(window_df, cumulative_df, output_path):
+    """Enhanced visualization with larger fonts"""
+    # ======================
+    # 1. 字体全局设置
+    # ======================
+    plt.style.use('seaborn-v0_8')
+    mpl.rcParams.update({
+        'font.size': 14,          # 全局基础字号增大
+        'axes.titlesize': 20,     # 标题字号加大
+        'axes.labelsize': 18,     # 坐标轴标签
+        'xtick.labelsize': 16,    # X轴刻度
+        'ytick.labelsize': 16,    # Y轴刻度
+        'legend.fontsize': 16,    # 图例字号
+    })
+
+    # ======================
+    # 2. 创建画布（调整DPI）
+    # ======================
+    fig = plt.figure(figsize=(20, 15), dpi=120)
+    fig.suptitle('User Interaction Analysis', fontsize=22, y=1.02)
+
+    # ======================
+    # 3. 子图绘制（字号强化）
+    # ======================
+    # 3.1 累计用户数（左上）
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax1.plot(cumulative_df['time_point']/1000, 
+            cumulative_df['unique_users'], 
+            'b-', linewidth=3)
+    ax1.set_title('Cumulative Unique Users', pad=20, fontsize=20)
+    ax1.set_xlabel('Time (seconds)', fontsize=18, labelpad=10)
+    ax1.set_ylabel('User Count', fontsize=18, labelpad=10)
+    ax1.grid(True, alpha=0.3)
+    
+    # 3.2 窗口用户数（右上）- 重点放大
+    ax2 = fig.add_subplot(2, 2, 2)
+    bar_width = window_df['window_end'].diff().mean()/1000*0.7
+    ax2.bar(window_df['window_end']/1000, 
+           window_df['unique_users'],
+           width=bar_width,
+           color='#FF7F0E', edgecolor='white')
+    ax2.set_title('Unique Users per Window', pad=20, fontsize=20)
+    ax2.set_xlabel('Time (seconds)', fontsize=18, labelpad=10)
+    ax2.set_ylabel('User Count', fontsize=18, labelpad=10)
+    ax2.grid(True, axis='y', alpha=0.3)
+    
+    # 3.3 窗口交互量（左下）
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax3.bar(window_df['window_end']/1000, 
+           window_df['total_interactions'],
+           width=bar_width,
+           color='#2CA02C', edgecolor='white')
+    ax3.set_title('Interactions per Window', pad=20, fontsize=20)
+    ax3.set_xlabel('Time (seconds)', fontsize=18, labelpad=10)
+    ax3.set_ylabel('Interaction Count', fontsize=18, labelpad=10)
+    ax3.grid(True, axis='y', alpha=0.3)
+    
+    # 3.4 平均交互次数（右下）
+    ax4 = fig.add_subplot(2, 2, 4)
+    ax4.plot(cumulative_df['time_point']/1000,
+            cumulative_df['total_interactions']/cumulative_df['unique_users'],
+            'r-', linewidth=3)
+    ax4.set_title('Avg Interactions per User', pad=20, fontsize=20)
+    ax4.set_xlabel('Time (seconds)', fontsize=18, labelpad=10)
+    ax4.set_ylabel('Average Count', fontsize=18, labelpad=10)
+    ax4.grid(True, alpha=0.3)
+
+    # ======================
+    # 4. 输出优化
+    # ======================
+    plt.tight_layout(pad=3.0)  # 增加子图间距
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"📊 Visualization saved with enhanced fonts: {output_path}")
+
+def save_json_distributions(df, output_path):
+    """Save distribution data as structured JSON"""
+    dist_data = []
+    for _, row in df.iterrows():
+        dist_data.append({
+            'time_point': row['time_point'],
+            'user_distribution': {
+                'total_users': row['unique_users'],
+                'interaction_dist': {
+                    str(k): int(v) for k, v in 
+                    sorted(row['interaction_counts'].items())
+                }
+            }
+        })
+    
+    with open(output_path, 'w') as f:
+        json.dump(dist_data, f, indent=2)
+
+def check_existing_files(output_dir, output_prefix, delta_t):
+    """检查是否已存在分析结果文件"""
+    delta_s = delta_t // 1000
+    files = {
+        'window': os.path.join(output_dir, f"{output_prefix}_window_{delta_s}s.csv"),
+        'cumulative': os.path.join(output_dir, f"{output_prefix}_cumulative_{delta_s}s.csv"),
+        'json': os.path.join(output_dir, f"{output_prefix}_distributions_{delta_s}s.json"),
+        'plot': os.path.join(output_dir, f"{output_prefix}_plot_{delta_s}s.png")
+    }
+    
+    # 检查所有必需文件是否存在
+    all_exist = all(os.path.exists(f) for f in files.values())
+    return files, all_exist
+
+def main():
+    args = parse_arguments()
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    print(f"Analysis started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Input file: {args.input_file}")
+    print(f"Time window: {args.delta_t}ms ({args.delta_t/1000:.1f}s)")
+    print(f"Output directory: {args.output_dir}")
+    
+    try:
+        # Load data
+        df = pd.read_csv(args.input_file)
+        print(f"Successfully loaded {len(df):,} records")
+        
+        # Analyze data
+        window_df, cumulative_df = analyze_data(df, args.delta_t, args.time_col, args.user_col)
+        
+        # Generate output filenames based on delta_t
+        delta_s = args.delta_t // 1000
+        window_file = os.path.join(args.output_dir, f"{args.output_prefix}_window_{delta_s}s.csv")
+        cumulative_file = os.path.join(args.output_dir, f"{args.output_prefix}_cumulative_{delta_s}s.csv")
+        json_file = os.path.join(args.output_dir, f"{args.output_prefix}_distributions_{delta_s}s.json")
+        plot_file = os.path.join(args.output_dir, f"{args.output_prefix}_plot_{delta_s}s.png")
+        
+        # Save results
+        window_df.to_csv(window_file, index=False)
+        cumulative_df.to_csv(cumulative_file, index=False)
+        save_json_distributions(cumulative_df, json_file)
+        
+        # Visualization
+        if args.plot:
+            plot_path = visualize_results(window_df, cumulative_df, plot_file)
+            print(f"Visualization saved to: {plot_path}")
+        
+        print("\nAnalysis completed successfully!")
+        print(f"Window stats: {window_file}")
+        print(f"Cumulative stats: {cumulative_file}")
+        print(f"Distribution data: {json_file}")
+        if args.plot:
+            print(f"Visualization: {plot_path}")
+        
+    except Exception as e:
+        print(f"\nProcessing failed: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,42 @@
+Loading checkpoint: /workspace/recsys-shared_data/ckpts/kuairand-pure/ranking/2025_08_11-14_10_14/final-iter0/torch_module/model.0.pth
+
+=== Checkpoint layout: ckpt['model_state_dict']; contains 26 entries ===
+
+_embedding_collection._model_parallel_embedding_collection.embeddings.video_id.weight | Tensor | shape: (1, 1), dtype: torch.float32, numel: 1, ~0.00 MB
+_embedding_collection._model_parallel_embedding_collection.embeddings.user_id.weight | Tensor | shape: (1, 1), dtype: torch.float32, numel: 1, ~0.00 MB
+_embedding_collection._data_parallel_embedding_collection.embeddings.user_active_degree/follow_user_num_range/fans_user_num_range/friend_user_num_range/register_days_range/action_weights_weights | Tensor | shape: (34688,), dtype: torch.float32, numel: 34688, ~0.13 MB
+_hstu_block._preprocessor._positional_encoder._position_embeddings_weight        | Tensor | shape: (8192, 128), dtype: torch.bfloat16, numel: 1048576, ~2.00 MB
+_hstu_block._attention_layers.0._input_layernorm_weight                          | Tensor | shape: (128,), dtype: torch.bfloat16, numel: 128, ~0.00 MB
+_hstu_block._attention_layers.0._input_layernorm_bias                            | Tensor | shape: (128,), dtype: torch.bfloat16, numel: 128, ~0.00 MB
+_hstu_block._attention_layers.0._output_ln_dropout_mul.weight                    | Tensor | shape: (512,), dtype: torch.bfloat16, numel: 512, ~0.00 MB
+_hstu_block._attention_layers.0._output_ln_dropout_mul.bias                      | Tensor | shape: (512,), dtype: torch.bfloat16, numel: 512, ~0.00 MB
+_hstu_block._attention_layers.0._linear_uvqk.weight                              | Tensor | shape: (2048, 128), dtype: torch.bfloat16, numel: 262144, ~0.50 MB
+_hstu_block._attention_layers.0._linear_uvqk.bias                                | Tensor | shape: (2048,), dtype: torch.bfloat16, numel: 2048, ~0.00 MB
+_hstu_block._attention_layers.0._linear_uvqk._extra_state                        | BytesIO | 864 bytes
+_hstu_block._attention_layers.0._linear_proj.weight                              | Tensor | shape: (128, 512), dtype: torch.bfloat16, numel: 65536, ~0.12 MB
+_hstu_block._attention_layers.0._linear_proj._extra_state                        | BytesIO | 864 bytes
+_hstu_block._attention_layers.1._input_layernorm_weight                          | Tensor | shape: (128,), dtype: torch.bfloat16, numel: 128, ~0.00 MB
+_hstu_block._attention_layers.1._input_layernorm_bias                            | Tensor | shape: (128,), dtype: torch.bfloat16, numel: 128, ~0.00 MB
+_hstu_block._attention_layers.1._output_ln_dropout_mul.weight                    | Tensor | shape: (512,), dtype: torch.bfloat16, numel: 512, ~0.00 MB
+_hstu_block._attention_layers.1._output_ln_dropout_mul.bias                      | Tensor | shape: (512,), dtype: torch.bfloat16, numel: 512, ~0.00 MB
+_hstu_block._attention_layers.1._linear_uvqk.weight                              | Tensor | shape: (2048, 128), dtype: torch.bfloat16, numel: 262144, ~0.50 MB
+_hstu_block._attention_layers.1._linear_uvqk.bias                                | Tensor | shape: (2048,), dtype: torch.bfloat16, numel: 2048, ~0.00 MB
+_hstu_block._attention_layers.1._linear_uvqk._extra_state                        | BytesIO | 864 bytes
+_hstu_block._attention_layers.1._linear_proj.weight                              | Tensor | shape: (128, 512), dtype: torch.bfloat16, numel: 65536, ~0.12 MB
+_hstu_block._attention_layers.1._linear_proj._extra_state                        | BytesIO | 864 bytes
+_mlp._mlp.0.weight                                                               | Tensor | shape: (512, 128), dtype: torch.bfloat16, numel: 65536, ~0.12 MB
+_mlp._mlp.0.bias                                                                 | Tensor | shape: (512,), dtype: torch.bfloat16, numel: 512, ~0.00 MB
+_mlp._mlp.2.weight                                                               | Tensor | shape: (8, 512), dtype: torch.bfloat16, numel: 4096, ~0.01 MB
+_mlp._mlp.2.bias                                                                 | Tensor | shape: (8,), dtype: torch.bfloat16, numel: 8, ~0.00 MB
+
+=== Optimizer state dict found ===
+Contains keys: ['optimizer', 'fp32_from_fp16_params']
+
+=== Inspecting dynamic embeddings in: /workspace/recsys-shared_data/ckpts/kuairand-pure/ranking/2025_08_11-14_10_14/final-iter0/dynamicemb_module ===
+
+Dynamic embedding module: model._embedding_collection._model_parallel_embedding_collection
+  - user_id: key✓ value✓ opt_args✗ | #keys: 13344, dim: 128
+    → First IDs: [9983, 13150, 13445, 16768, 16442, 6689, 12922, 2223, 3907, 11226]
+  - video_id: key✓ value✓ opt_args✗ | #keys: 7513, dim: 128
+    → First IDs: [4791, 4139, 6689, 4335, 2223, 0, 5722, 7387, 6696, 3352]
+

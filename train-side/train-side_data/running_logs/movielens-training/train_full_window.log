@@ -1,0 +1,191 @@
+[2025-08-13 15:03:04] [DEBUG] __main__ (pretrain_gr_ranking.py:43): successfully init logging
+/usr/local/lib/python3.12/dist-packages/rapids_dask_dependency/dask_loader.py:36: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  return importlib.import_module(spec.name)
+[2025-08-13 15:03:12.865824] distributed env initialization done. Free cuda memory: 23622.44 MB
+RankingGR(
+  (_embedding_collection): ShardedEmbedding(
+    (_model_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (movie_id): Embedding(10000000, 128)
+        (user_id): Embedding(10000000, 128)
+      )
+    )
+    (_data_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (action_weights): Embedding(11, 128)
+      )
+    )
+  )
+  (_hstu_block): HSTUBlock(
+    (_preprocessor): HSTUBlockPreprocessor(
+      (_positional_encoder): HSTUPositionalEncoder()
+    )
+    (_postprocessor): HSTUBlockPostprocessor()
+    (_attention_layers): ModuleList(
+      (0): HSTULayer(
+        (_output_ln_dropout_mul): TPLayerNormMulDropout()
+        (_linear_uvqk): TEColumnParallelLinear(in_features=128, out_features=2048, bias=True, TP=1)
+        (_linear_proj): TERowParallelLinear(in_features=512, out_features=128, bias=False, TP=1)
+        (_attn_func): FusedHSTUAttention()
+      )
+    )
+  )
+  (_mlp): MLP(
+    (_mlp): Sequential(
+      (0): Linear(in_features=128, out_features=512, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=512, out_features=10, bias=True)
+      (3): Identity()
+    )
+  )
+  (_loss_module): MultiTaskLossModule(
+    (_loss_modules): CrossEntropyLoss()
+  )
+  (_metric_module): MultiClassificationTaskMetric(
+    (_eval_metrics_modules): ModuleList(
+      (0): MulticlassAUROC()
+    )
+  )
+)
+
+
+table name |          | memory(MB) |             |         | hbm(MB)/cuda:0 |             |          |  dram(MB) |            
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+           | total    | embedding  | optim_state | total   | embedding      | optim_state | total    | embedding | optim_state
+---------- | -------- | ---------- | ----------- | ------- | -------------- | ----------- | -------- | --------- | -----------
+movie_id   | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+user_id    | 25165824 | 8388608    | 16777216    | 5000000 | 1666666        | 3333333     | 20165824 | 6721941   | 13443882   
+[2025-08-13 15:03:28] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-13 15:03:34.241951] [SequenceDataset.__init__]Train? True: set current_time with 1000000000
+[2025-08-13 15:03:49.162521] [SequenceDataset] Filtered samples with current_time_ms: 76445 removed, 62048 remaining.
+[2025-08-13 15:03:55.057731] [SequenceDataset.__init__]Train? False: set current_time with 1000000000
+[2025-08-13 15:04:10.948593] [SequenceDataset] Filtered samples with current_time_ms: 76445 removed, 62048 remaining.
+[2025-08-13 15:04:11.232597] model initialization done, start training. Free cuda memory: 14448.44 MB
+[2025-08-13 15:04:11.233186] =========Training without time window============
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-13 15:04:19.430639] [train] [iter 9, tokens 25600, elapsed_time 7728.99 ms, achieved FLOPS 0.11 TFLOPS]: loss 1.647455
+/usr/local/lib/python3.12/dist-packages/torchmetrics/utilities/prints.py:42: UserWarning: No positive samples in targets, true positive value should be meaningless. Returning zero tensor in true positive score
+  warnings.warn(*args, **kwargs)  # noqa: B028
+[2025-08-13 15:04:25.385952] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.316752
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-13 15:04:25.715959] [train] [iter 19, tokens 25600, elapsed_time 6753.28 ms, achieved FLOPS 0.12 TFLOPS]: loss 1.424532
+[2025-08-13 15:04:29.194729] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.316565
+[2025-08-13 15:04:29.543212] [train] [iter 29, tokens 25600, elapsed_time 3827.29 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.361463
+[2025-08-13 15:04:33.023761] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.329425
+[2025-08-13 15:04:33.358473] [train] [iter 39, tokens 25600, elapsed_time 3815.33 ms, achieved FLOPS 0.25 TFLOPS]: loss 1.351146
+[2025-08-13 15:04:36.827145] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.337833
+[2025-08-13 15:04:37.130307] [train] [iter 49, tokens 25600, elapsed_time 3771.80 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.283834
+[2025-08-13 15:04:40.564524] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.342649
+[2025-08-13 15:04:40.879567] [train] [iter 59, tokens 25600, elapsed_time 3749.19 ms, achieved FLOPS 0.28 TFLOPS]: loss 1.277790
+[2025-08-13 15:04:44.314546] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.346302
+[2025-08-13 15:04:44.615725] [train] [iter 69, tokens 25600, elapsed_time 3736.22 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.273601
+[2025-08-13 15:04:48.055351] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.351275
+[2025-08-13 15:04:48.355299] [train] [iter 79, tokens 25600, elapsed_time 3739.41 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.238557
+[2025-08-13 15:04:51.784018] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.354773
+[2025-08-13 15:04:52.084391] [train] [iter 89, tokens 25600, elapsed_time 3729.18 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.223761
+[2025-08-13 15:04:55.520934] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.355938
+[2025-08-13 15:04:55.834388] [train] [iter 99, tokens 25600, elapsed_time 3749.95 ms, achieved FLOPS 0.26 TFLOPS]: loss 1.295797
+[2025-08-13 15:04:59.280802] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.360062
+[2025-08-13 15:04:59.592958] [train] [iter 109, tokens 25600, elapsed_time 3758.52 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.235977
+[2025-08-13 15:05:03.038216] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.360714
+[2025-08-13 15:05:03.349801] [train] [iter 119, tokens 25600, elapsed_time 3756.93 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.281538
+[2025-08-13 15:05:06.788518] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.361239
+[2025-08-13 15:05:07.103139] [train] [iter 129, tokens 25600, elapsed_time 3753.17 ms, achieved FLOPS 0.28 TFLOPS]: loss 1.242359
+[2025-08-13 15:05:10.542422] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.362541
+[2025-08-13 15:05:10.842356] [train] [iter 139, tokens 25600, elapsed_time 3739.22 ms, achieved FLOPS 0.21 TFLOPS]: loss 1.233251
+[2025-08-13 15:05:14.273742] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.363828
+[2025-08-13 15:05:14.582042] [train] [iter 149, tokens 25600, elapsed_time 3739.79 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.282002
+[2025-08-13 15:05:18.022064] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.364267
+[2025-08-13 15:05:18.369771] [train] [iter 159, tokens 25600, elapsed_time 3787.57 ms, achieved FLOPS 0.25 TFLOPS]: loss 1.226336
+[2025-08-13 15:05:21.799994] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.364505
+[2025-08-13 15:05:22.127495] [train] [iter 169, tokens 25600, elapsed_time 3757.82 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.255013
+[2025-08-13 15:05:25.567057] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.365143
+[2025-08-13 15:05:25.909457] [train] [iter 179, tokens 25600, elapsed_time 3781.81 ms, achieved FLOPS 0.25 TFLOPS]: loss 1.222976
+[2025-08-13 15:05:29.339395] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.365656
+[2025-08-13 15:05:29.665528] [train] [iter 189, tokens 25600, elapsed_time 3756.21 ms, achieved FLOPS 0.22 TFLOPS]: loss 1.214042
+[2025-08-13 15:05:33.144732] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.366433
+[2025-08-13 15:05:33.479889] [train] [iter 199, tokens 25600, elapsed_time 3814.18 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.235657
+[2025-08-13 15:05:36.925630] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.367180
+[2025-08-13 15:05:37.261209] [train] [iter 209, tokens 25600, elapsed_time 3781.31 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.195695
+[2025-08-13 15:05:40.701712] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.367825
+[2025-08-13 15:05:41.025989] [train] [iter 219, tokens 25600, elapsed_time 3764.87 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.223555
+[2025-08-13 15:05:44.466892] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.368398
+[2025-08-13 15:05:44.801274] [train] [iter 229, tokens 25600, elapsed_time 3775.12 ms, achieved FLOPS 0.25 TFLOPS]: loss 1.240638
+[2025-08-13 15:05:48.235683] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.368381
+[2025-08-13 15:05:48.559368] [train] [iter 239, tokens 25600, elapsed_time 3758.23 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.259356
+[2025-08-13 15:05:52.003421] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.368880
+[2025-08-13 15:05:52.334114] [train] [iter 249, tokens 25600, elapsed_time 3774.58 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.204912
+[2025-08-13 15:05:55.775622] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.369575
+[2025-08-13 15:05:56.102863] [train] [iter 259, tokens 25600, elapsed_time 3768.73 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.202845
+[2025-08-13 15:05:59.542113] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.369698
+[2025-08-13 15:05:59.870813] [train] [iter 269, tokens 25600, elapsed_time 3768.03 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.172219
+[2025-08-13 15:06:03.313426] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.369741
+[2025-08-13 15:06:03.639267] [train] [iter 279, tokens 25600, elapsed_time 3768.32 ms, achieved FLOPS 0.22 TFLOPS]: loss 1.235952
+[2025-08-13 15:06:07.079339] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.369707
+[2025-08-13 15:06:07.403972] [train] [iter 289, tokens 25600, elapsed_time 3764.84 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.229450
+[2025-08-13 15:06:10.844803] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.370309
+[2025-08-13 15:06:11.177024] [train] [iter 299, tokens 25600, elapsed_time 3772.88 ms, achieved FLOPS 0.24 TFLOPS]: loss 1.172635
+[2025-08-13 15:06:14.615356] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.369661
+[2025-08-13 15:06:14.945447] [train] [iter 309, tokens 25600, elapsed_time 3768.41 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.235991
+[2025-08-13 15:06:18.379781] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.370724
+[2025-08-13 15:06:18.703343] [train] [iter 319, tokens 25600, elapsed_time 3757.99 ms, achieved FLOPS 0.22 TFLOPS]: loss 1.229092
+[2025-08-13 15:06:22.145190] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.370811
+[2025-08-13 15:06:22.473575] [train] [iter 329, tokens 25600, elapsed_time 3770.09 ms, achieved FLOPS 0.22 TFLOPS]: loss 1.222939
+[2025-08-13 15:06:25.915606] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.370055
+/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py:825: UserWarning: fbgemm::dense_embedding_codegen_lookup_function: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:62.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[2025-08-13 15:06:26.419687] [train] [iter 339, tokens 23860, elapsed_time 3946.06 ms, achieved FLOPS 0.23 TFLOPS]: loss 1.191750
+/usr/local/lib/python3.12/dist-packages/torchmetrics/utilities/prints.py:42: UserWarning: No positive samples in targets, true positive value should be meaningless. Returning zero tensor in true positive score
+  warnings.warn(*args, **kwargs)  # noqa: B028
+[2025-08-13 15:06:29.883180] [eval] [eval 18688 users]:
+    Metrics.task0.AUC:0.370933
+[2025-08-13 15:06:29.890543] ==================================================
+[2025-08-13 15:06:29.890578] ==> SAVING CHECKPOINTS TO: /workspace/recsys-shared_data/ckpts/ml-20m/ranking/2025_08_13-15_03_12/final-iter340
+[2025-08-13 15:06:29.890587] ==================================================
+[yinj] Saving model type: <class 'torchrec.distributed.model_parallel.DistributedModelParallel'>
+[yinj] Saving unwrapped_module type: <class 'model.ranking_gr.RankingGR'>
+[2025-08-13 15:06:29.890975] dynamic module save dir /workspace/recsys-shared_data/ckpts/ml-20m/ranking/2025_08_13-15_03_12/final-iter340/dynamicemb_module
+[yinj] [RANK 0] world_size = 1
+DynamicEmb dump table movie_id from module _model_parallel_embedding_collection success!
+[yinj] [RANK 0] world_size = 1
+DynamicEmb dump table user_id from module _model_parallel_embedding_collection success!
+[2025-08-13 15:06:30.404430] torch module save dir /workspace/recsys-shared_data/ckpts/ml-20m/ranking/2025_08_13-15_03_12/final-iter340/torch_module
+[2025-08-13 15:06:30.589331] ==================================================
+[2025-08-13 15:06:30.589379] ==> CHECKPOINTS SAVED SUCCESSFULLY ✅
+[2025-08-13 15:06:30.589391] ==================================================
+[rank0]:[W813 15:06:32.927837028 ProcessGroupNCCL.cpp:1294] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())

@@ -1,0 +1,185 @@
+[2025-08-10 09:40:34] [DEBUG] __main__ (pretrain_gr_ranking.py:37): successfully init logging
+/usr/local/lib/python3.12/dist-packages/rapids_dask_dependency/dask_loader.py:36: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  return importlib.import_module(spec.name)
+NOTE! Installing ujson may make loading annotations faster.
+[2025-08-10 09:40:46.905510] distributed env initialization done. Free cuda memory: 23622.44 MB
+RankingGR(
+  (_embedding_collection): ShardedEmbedding(
+    (_model_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (video_id): Embedding(10000000, 512)
+        (user_id): Embedding(10000000, 512)
+      )
+    )
+    (_data_parallel_embedding_collection): EmbeddingCollection(
+      (embeddings): ModuleDict(
+        (user_active_degree): Embedding(8, 512)
+        (follow_user_num_range): Embedding(9, 512)
+        (fans_user_num_range): Embedding(9, 512)
+        (friend_user_num_range): Embedding(8, 512)
+        (register_days_range): Embedding(8, 512)
+        (action_weights): Embedding(233, 512)
+      )
+    )
+  )
+  (_hstu_block): HSTUBlock(
+    (_preprocessor): HSTUBlockPreprocessor(
+      (_positional_encoder): HSTUPositionalEncoder()
+    )
+    (_postprocessor): HSTUBlockPostprocessor()
+    (_attention_layers): ModuleList(
+      (0-2): 3 x HSTULayer(
+        (_output_ln_dropout_mul): TPLayerNormMulDropout()
+        (_linear_uvqk): TEColumnParallelLinear(in_features=512, out_features=2048, bias=True, TP=1)
+        (_linear_proj): TERowParallelLinear(in_features=512, out_features=512, bias=False, TP=1)
+        (_attn_func): FusedHSTUAttention()
+      )
+    )
+  )
+  (_mlp): MLP(
+    (_mlp): Sequential(
+      (0): Linear(in_features=512, out_features=512, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=512, out_features=8, bias=True)
+      (3): Identity()
+    )
+  )
+  (_loss_module): MultiTaskLossModule(
+    (_loss_modules): BCEWithLogitsLoss()
+  )
+  (_metric_module): MultiClassificationTaskMetric(
+    (_eval_metrics_modules): ModuleList(
+      (0-7): 8 x BinaryAUROC()
+    )
+  )
+)
+
+
+table name |           | memory(MB) |             |          | hbm(MB)/cuda:0 |             |          |  dram(MB) |            
+---------- | --------- | ---------- | ----------- | -------- | -------------- | ----------- | -------- | --------- | -----------
+           | total     | embedding  | optim_state | total    | embedding      | optim_state | total    | embedding | optim_state
+---------- | --------- | ---------- | ----------- | -------- | -------------- | ----------- | -------- | --------- | -----------
+video_id   | 100663296 | 33554432   | 67108864    | 10000000 | 3333333        | 6666666     | 90663296 | 30221098  | 60442197   
+user_id    | 100663296 | 33554432   | 67108864    | 10000000 | 3333333        | 6666666     | 90663296 | 30221098  | 60442197   
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:03] [WARNING] torchrec.distributed.utils (utils.py:429): Sharding Type is data_parallel, caching params will be ignored
+[2025-08-10 09:42:17.099068] [SequenceDataset] Filtered samples with short sequences: 0 removed, 983 remaining.
+[2025-08-10 09:42:19.709119] [SequenceDataset.__init__]current_time is 1649347847572, earliest time is 1649344247572
+[2025-08-10 09:42:31.076872] [SequenceDataset] Filtered samples with short sequences: 0 removed, 983 remaining.
+W0810 09:42:31.442000 331815 torch/distributed/elastic/agent/server/api.py:719] Received 2 death signal, shutting down workers
+W0810 09:42:31.446000 331815 torch/distributed/elastic/multiprocessing/api.py:897] Sending process 331919 closing signal SIGINT
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/pretrain_gr_ranking.py", line 204, in <module>
+[rank0]:     main()
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/pretrain_gr_ranking.py", line 165, in main
+[rank0]:     train_dataloader, test_dataloader = get_data_loader(
+[rank0]:                                         ^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/training/utils.py", line 207, in get_data_loader
+[rank0]:     ) = dataset.sequence_dataset.get_dataset(
+[rank0]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/dataset/sequence_dataset.py", line 725, in get_dataset
+[rank0]:     eval_dataset = SequenceDataset(
+[rank0]:                    ^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/recsys-examples/examples/hstu/dataset/sequence_dataset.py", line 191, in __init__
+[rank0]:     ] = self._seq_logs_frame[self.time_column_name].apply(json.loads)
+[rank0]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/pandas/core/series.py", line 4924, in apply
+[rank0]:     ).apply()
+[rank0]:       ^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/pandas/core/apply.py", line 1427, in apply
+[rank0]:     return self.apply_standard()
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/pandas/core/apply.py", line 1507, in apply_standard
+[rank0]:     mapped = obj._map_values(
+[rank0]:              ^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/pandas/core/base.py", line 921, in _map_values
+[rank0]:     return algorithms.map_array(arr, mapper, na_action=na_action, convert=convert)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/pandas/core/algorithms.py", line 1743, in map_array
+[rank0]:     return lib.map_infer(values, mapper, convert=convert)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "lib.pyx", line 2972, in pandas._libs.lib.map_infer
+[rank0]:   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[rank0]:     return _default_decoder.decode(s)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[rank0]:     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[rank0]:                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/lib/python3.12/json/decoder.py", line 353, in raw_decode
+[rank0]:     obj, end = self.scan_once(s, idx)
+[rank0]:                ^^^^^^^^^^^^^^^^^^^^^^
+[rank0]: KeyboardInterrupt
+[rank0]:[W810 09:42:33.771006723 ProcessGroupNCCL.cpp:1294] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+W0810 09:42:48.093000 331815 torch/distributed/elastic/multiprocessing/api.py:897] Sending process 331919 closing signal SIGTERM
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 331815 got signal: 2
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 720, in run
+    self._shutdown(e.sigval)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/local_elastic_agent.py", line 372, in _shutdown
+    self._pcontext.close(death_sig)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 572, in close
+    self._close(death_sig=death_sig, timeout=timeout)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 909, in _close
+    handler.proc.wait(time_to_wait)
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2047, in _wait
+    time.sleep(delay)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 331815 got signal: 2
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 33, in <module>
+    sys.exit(load_entry_point('torch==2.6.0a0+df5bbc09d1.nv24.11', 'console_scripts', 'torchrun')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/run.py", line 919, in main
+    run(args)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/run.py", line 910, in run
+    elastic_launch(
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 260, in launch_agent
+    result = agent.run()
+             ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/metrics/api.py", line 137, in wrapper
+    result = f(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/api.py", line 725, in run
+    self._shutdown()
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/agent/server/local_elastic_agent.py", line 372, in _shutdown
+    self._pcontext.close(death_sig)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 572, in close
+    self._close(death_sig=death_sig, timeout=timeout)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 909, in _close
+    handler.proc.wait(time_to_wait)
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2047, in _wait
+    time.sleep(delay)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 331815 got signal: 2

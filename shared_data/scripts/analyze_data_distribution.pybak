@@ -1,0 +1,156 @@
+# python analyze_data_distribution.py /home/xieminhui/yinj/workplace/recsys-examples/examples/hstu/tmp_data/KuaiRand-Pure/data/log_standard_4_08_to_4_21_pure.csv --delta_t 300000 --output_dir /home/xieminhui/yinj/workplace/recsys-examples/data/data_distribution --output_prefix=kuairand_pure_408_421
+import pandas as pd
+import numpy as np
+import argparse
+from collections import defaultdict
+from datetime import datetime
+import json
+
+def parse_arguments():
+    """解析命令行参数"""
+    parser = argparse.ArgumentParser(
+        description='用户交互数据时间窗口分析(窗口统计+累计统计)',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    
+    parser.add_argument('input_file', help='输入的CSV文件路径')
+    parser.add_argument('--delta_t', type=int, default=60000,
+                      help='时间窗口大小(毫秒)')
+    parser.add_argument('--output_dir', default='./results',
+                      help='输出文件目录')
+    parser.add_argument('--output_prefix', default='interaction_stats',
+                      help='输出文件前缀')
+    parser.add_argument('--time_col', default='time_ms',
+                      help='时间戳列名')
+    parser.add_argument('--user_col', default='user_id',
+                      help='用户ID列名')
+    
+    return parser.parse_args()
+
+def analyze_interactions(df, delta_t_ms, time_col, user_col):
+    """执行双重分析(窗口统计+累计统计)"""
+    # 预处理
+    df['timestamp'] = pd.to_datetime(df[time_col], unit='ms')
+    df = df.sort_values('timestamp')
+    min_time = df['timestamp'].min()
+    df['time_since_start'] = (df['timestamp'] - min_time).dt.total_seconds() * 1000
+    
+    # 初始化
+    max_time = df['time_since_start'].max()
+    time_windows = np.arange(0, max_time + delta_t_ms, delta_t_ms)
+    
+    window_results = []
+    cumulative_results = []
+    all_users = set()
+    cumulative_data = pd.DataFrame()
+    
+    for i, window_end in enumerate(time_windows):
+        # 当前窗口数据
+        window_mask = (df['time_since_start'] > (window_end - delta_t_ms)) & (df['time_since_start'] <= window_end)
+        window_data = df[window_mask]
+        
+        # 累计数据(从开始到当前窗口)
+        cumulative_mask = df['time_since_start'] <= window_end
+        cumulative_data = df[cumulative_mask]
+        
+        # 窗口统计
+        window_users = window_data[user_col].unique()
+        window_user_count = len(window_users)
+        window_seq_lengths = window_data.groupby(user_col).size()
+        window_dist = window_seq_lengths.value_counts().sort_index().to_dict()
+        
+        # 累计统计
+        cumulative_users = cumulative_data[user_col].unique()
+        cumulative_user_count = len(cumulative_users)
+        cumulative_seq_lengths = cumulative_data.groupby(user_col).size()
+        cumulative_dist = cumulative_seq_lengths.value_counts().sort_index().to_dict()
+        
+        # 记录结果
+        window_results.append({
+            'window_start_ms': window_end - delta_t_ms,
+            'window_end_ms': window_end,
+            'new_user_count': window_user_count,
+            'window_interaction_dist': window_dist
+        })
+        
+        cumulative_results.append({
+            'time_ms': window_end,
+            'total_user_count': cumulative_user_count,
+            'cumulative_interaction_dist': cumulative_dist
+        })
+        
+        # 进度输出
+        if i % 10 == 0 or window_end >= max_time:
+            print(f"进度: {window_end/1000:.1f}s / {max_time/1000:.1f}s | "
+                  f"窗口用户: {window_user_count} | 累计用户: {cumulative_user_count}")
+    
+    return pd.DataFrame(window_results), pd.DataFrame(cumulative_results)
+
+def save_results(window_df, cumulative_df, args):
+    """保存结果到文件"""
+    import os
+    
+    # 确保输出目录存在
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    # 窗口统计
+    window_file = os.path.join(args.output_dir, f"{args.output_prefix}_window.csv")
+    window_df.to_csv(window_file, index=False)
+    
+    # 累计统计
+    cumulative_file = os.path.join(args.output_dir, f"{args.output_prefix}_cumulative.csv")
+    cumulative_df.to_csv(cumulative_file, index=False)
+    
+    # 合并的JSON格式
+    json_file = os.path.join(args.output_dir, f"{args.output_prefix}_combined.json")
+    with open(json_file, 'w') as f:
+        json.dump({
+            'window_stats': window_df.to_dict('records'),
+            'cumulative_stats': cumulative_df.to_dict('records')
+        }, f, indent=2)
+    
+    return window_file, cumulative_file, json_file
+
+def main():
+    args = parse_arguments()
+    
+    print(f"\n{'='*50}")
+    print(f"开始分析: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"输入文件: {args.input_file}")
+    print(f"时间窗口: {args.delta_t}ms ({args.delta_t/1000:.0f}秒)")
+    print(f"时间戳列: {args.time_col}")
+    print(f"用户ID列: {args.user_col}")
+    print(f"{'='*50}\n")
+    
+    try:
+        df = pd.read_csv(args.input_file)
+        print(f"数据加载成功，记录数: {len(df):,}")
+        
+        window_df, cumulative_df = analyze_interactions(
+            df, args.delta_t, args.time_col, args.user_col)
+        
+        w_file, c_file, j_file = save_results(
+            window_df, cumulative_df, args.output_prefix)
+        
+        print(f"\n分析完成:")
+        print(f"- 窗口统计: {w_file}")
+        print(f"- 累计统计: {c_file}")
+        print(f"- 合并结果(JSON): {j_file}")
+        
+        # 最终摘要
+        total_windows = len(window_df)
+        max_window_users = window_df['new_user_count'].max()
+        final_total_users = cumulative_df['total_user_count'].iloc[-1]
+        max_interactions = max(json.loads(cumulative_df['cumulative_interaction_dist'].iloc[-1].keys()))
+        
+        print(f"\n统计摘要:")
+        print(f"总时间窗口数: {total_windows}")
+        print(f"单窗口最大新增用户: {max_window_users}")
+        print(f"最终累计用户数: {final_total_users}")
+        print(f"最大交互序列长度: {max_interactions}")
+        
+    except Exception as e:
+        print(f"\n错误: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    main()
